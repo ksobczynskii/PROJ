@@ -1,0 +1,15 @@
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.AssemblyInfoInputs.cache
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.AssemblyInfo.cs
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.csproj.CoreCompileInputs.cache
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.sourcelink.json
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/bin/Debug/net9.0/PROJ
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/bin/Debug/net9.0/PROJ.deps.json
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/bin/Debug/net9.0/PROJ.runtimeconfig.json
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/bin/Debug/net9.0/PROJ.dll
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/bin/Debug/net9.0/PROJ.pdb
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.dll
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/refint/PROJ.dll
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.pdb
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/PROJ.genruntimeconfig.cache
+/Users/kosteks/PROJ/PROJ/PROJ/PROJ/obj/Debug/net9.0/ref/PROJ.dll
