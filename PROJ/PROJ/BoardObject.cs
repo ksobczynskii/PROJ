@@ -13,4 +13,6 @@ public abstract class BoardObject : IPickupable
     public abstract string Description { get; }
     public abstract bool Pickupable { get; }
     public abstract void PickUp(Player player);
+    
+    public abstract bool Blocker { get; }
 }

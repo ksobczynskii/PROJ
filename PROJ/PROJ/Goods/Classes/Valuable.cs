@@ -8,4 +8,7 @@ public abstract class Valuable : BoardObject
     // {
     //     // TODO PickUp Implementation
     // }
+    
+    public override bool Blocker => false;
+
 }

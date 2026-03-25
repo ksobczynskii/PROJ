@@ -10,5 +10,5 @@ public abstract class Weapon : Tool
     public Weapon(Player player) : base(player){}
 
     
-    public abstract bool TwoHanded();
+    public abstract bool TwoHanded(); // TODO decyzja - size i twohandedness to to samo czy nie
 }
