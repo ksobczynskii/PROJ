@@ -5,10 +5,12 @@ namespace PROJ.Handlers;
 public class EscapeHandler : Handler
 {
     private Player? _player;
+    private Game _game;
 
-    public EscapeHandler(Player p)
+    public EscapeHandler(Player p, Game g)
     {
         _player = p;
+        _game = g;
     }
     public override HandleResult Handle(ConsoleKey key)
     {
@@ -26,7 +28,7 @@ public class EscapeHandler : Handler
         if (key == ConsoleKey.Escape)
         {
             Console.Clear();
-            return HandleResult.ExitGame;
+            _game.EndGood();
         }
         if(next != null)
             return next.Handle(key);

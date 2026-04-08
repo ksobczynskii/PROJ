@@ -1,10 +1,16 @@
+using PROJ.Fight;
+using PROJ.Fight.Interfaces;
+using PROJ.GameConstansts;
+
 namespace PROJ.Tools.Classes;
 
 public abstract class Tool :  BoardObject, ITool, IUsable // TODO use NuGet 
 {
     public abstract int Space { get; }
     protected Player Owner;
-    
+
+    public override bool Fightable => false;
+
 
     public Tool(Player player)
     {
@@ -18,23 +24,33 @@ public abstract class Tool :  BoardObject, ITool, IUsable // TODO use NuGet
     {
         if (!Pickupable)
         {
-            Owner.errSpace.DisplayErr("Can't Pick up that object yet!");
+            Owner.ErrSpace.DisplayErr("Can't Pick up that object yet!");
             return;
         }
         if (ObjBoard != null)
         {
-            if (player.playerBackpack.TryAddItem(this))
+            if (player.PlayerBackpack.TryAddItem(this))
             {
                 ObjBoard.RemoveFromMap(X,Y);
-                player.eqBox.DisplayItems();
+                player.EqBox.DisplayItems();
                 ObjBoard.RefreshActionBox(X,Y);
             }
             else
             {
-                Owner.errSpace.DisplayErr("Item too large!");
+                Owner.ErrSpace.DisplayErr("Item too large!");
             }
         }
     }
+    public virtual int GetStrength => 0;
+
+    public virtual int GetLuck => 0;
+    public virtual int GetDexterity => 0;
+    public virtual int GetWisdom => 0;
 
     public override bool Blocker => false;
+    
+    public virtual AttackResult Accept(IAttackVisitor visitor)
+    {
+        return visitor.VisitOther();
+    }
 }

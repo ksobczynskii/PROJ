@@ -45,12 +45,13 @@ public class VitalsBox : Box
 
     public void DisplayVitals()
     {
+        ClearInside();
         List<string> vitals = new List<string>();
         vitals.Add($"Health: {_player.Health}/100");
         vitals.Add($"Level: {Math.Floor(_player.Level)}");
         vitals.Add($"Strength: {_player.Strength}");
-        vitals.Add($"Speed: {_player.Speed}");
-        vitals.Add($"Hunger: {_player.Hunger}");
+        vitals.Add($"Dexterity: {_player.Dexterity}");
+        vitals.Add($"Luck: {_player.Luck}");
         vitals.Add($"Wisdom: {_player.Wisdom}");
         Console.SetCursorPosition(GameConstants.VitalsBoxWritingPointStartLeft,
             GameConstants.VitalsBoxWritingPointStartTop);
@@ -61,5 +62,19 @@ public class VitalsBox : Box
                 GameConstants.VitalsBoxWritingPointStartTop + i + 1);
         }
         
+    }
+
+    private void ClearInside()
+    {
+        int width = GameConstants.VitalsBoxRight - GameConstants.VitalsBoxWritingPointStartLeft;
+        string emptyLine = new string(' ', width);
+
+        for (int y = GameConstants.VitalsBoxWritingPointStartTop; 
+             y < GameConstants.VitalsBoxBottom; 
+             y++)
+        {
+            Console.SetCursorPosition(GameConstants.VitalsBoxWritingPointStartLeft, y);
+            Console.Write(emptyLine);
+        }
     }
 }

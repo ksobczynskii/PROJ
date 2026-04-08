@@ -9,7 +9,7 @@ public class Coin : Valuable
     
     public override void PickUp(Player player) // TODO update wealthBox
     {
-        player.coins++;
+        player.Coins++;
         if(ObjBoard != null)
             ObjBoard.RemoveFromMap(X,Y);
         player.UpdateWealth();

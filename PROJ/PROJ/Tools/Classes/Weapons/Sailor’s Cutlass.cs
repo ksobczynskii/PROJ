@@ -1,13 +1,15 @@
+using PROJ.Tools.Classes.Weapons.Abstract_Types;
+
 namespace PROJ.Tools.Classes.Weapons;
 
-public class SailorsCutlass : Weapon
+public class SailorsCutlass : HeavyWeapon
 {
     public SailorsCutlass(Player player) : base(player){}
     public override char Visual => '☽';
     public override int Space => 1;
     public override int Damage => 10;
-    public override int Range => 0;
-    public override float Cooldown => 1.5f;
+    // public override int Range => 0;
+    // public override float Cooldown => 1.5f;
     public override string Name => "Sailor's Cutlass";
 
 

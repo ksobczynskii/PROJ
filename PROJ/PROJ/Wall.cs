@@ -1,3 +1,5 @@
+using PROJ.GameConstansts;
+
 namespace PROJ;
 
 public class Wall : BoardObject
@@ -5,7 +7,7 @@ public class Wall : BoardObject
     public override string Name => "Wall";
     public override bool Pickupable => false;
 
-    public override char Visual => '█';
+    public override char Visual => GameConstants.WallSymbol;
 
     public override string Description => " ";
 
@@ -15,5 +17,5 @@ public class Wall : BoardObject
     }
     
     public override bool Blocker => true;
-
+    public override bool Fightable => false;
 }

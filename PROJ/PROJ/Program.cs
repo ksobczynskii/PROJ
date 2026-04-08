@@ -1,5 +1,4 @@
-﻿using PROJ;
-
+﻿namespace PROJ;
 static class Program
 {
     static void Main()
@@ -8,7 +7,7 @@ static class Program
         Game game = new Game();
         game.Start();
         game.WaitForMove();
-        game.End();
+        game.EndGood();
         // Console.WriteLine("Hello");
     }
 }

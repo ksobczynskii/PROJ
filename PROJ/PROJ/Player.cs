@@ -4,11 +4,10 @@ namespace PROJ;
 
 public class Player
 {
-    // TODO zmien interfejs uzytkownika teraz, jak juz masz przedmioty
     public double Level;
-    public int Speed;
+    public int Dexterity;
     public int Health;
-    public int Hunger;
+    public int Luck;
     public int Strength;
     public int Wisdom;
     
@@ -18,40 +17,45 @@ public class Player
     private int[] _position; // 0 - x, 1 - y
     
     private Board _board;
+
+    private VitalsBox _vitalsBox;
     
 
-    public Backpack? playerBackpack;
+    public Backpack? PlayerBackpack;
     private bool _backPackMode;
     private int _backpackIdx;
     
 
-    public int gold;
-    public int coins;
+    public int Gold;
+    public int Coins;
 
-    public WealthBox wBox;
-    public EquipmentBox eqBox;
-    public LeftHandBox lhBox;
-    public RightHandBox rhBox;
-    public AboveActionErrorSpace errSpace;
-    public Player(Board board)
+    public WealthBox WBox;
+    public EquipmentBox EqBox;
+    public LeftHandBox LhBox;
+    public RightHandBox RhBox;
+    public AboveActionErrorSpace ErrSpace;
+    public Player(Board board) // Tak jak w przypadku board - pewne fieldy nie moga byc nullami
     {
         Level = 1.0;
-        Speed = 25;
+        Dexterity = 5;
         Health = 100;
-        Hunger = 0;
-        Strength = 25;
-        Wisdom = 25;
+        Luck = 5;
+        Strength = 5;
+        Wisdom = 5;
         LeftHand = null;
         RightHand = null;
         _position = new int[2];
         _position[0] = 1;
         _position[1] = 1;
         _board = board;
-        gold = 0;
-        coins = 0;
-        playerBackpack = new Backpack();
+        Gold = 0;
+        Coins = 0;
+        PlayerBackpack = new Backpack();
         _backPackMode = false;
+        _vitalsBox = new VitalsBox(this);
     }
+
+    public VitalsBox GetVitalsBox => _vitalsBox;
     public int[] Position
     {
         get => _position;
@@ -69,18 +73,18 @@ public class Player
 
     public void TryIncrementBackpackIdx()
     {
-        if (playerBackpack != null && _backpackIdx < playerBackpack.GetItemsCount ) // upsi
+        if (PlayerBackpack != null && _backpackIdx < PlayerBackpack.GetItemsCount ) // upsi
         {
             
-            eqBox.PointerDown(_backpackIdx++);
+            EqBox.PointerDown(_backpackIdx++);
         }
     }
     
     public void TryDecrementBackpackIdx()
     {
-        if (playerBackpack != null && _backpackIdx > 0)
+        if (PlayerBackpack != null && _backpackIdx > 0)
         {
-            eqBox.PointerUp(_backpackIdx--);
+            EqBox.PointerUp(_backpackIdx--);
         }
             
     }
@@ -88,13 +92,13 @@ public class Player
     {
         _backPackMode = true;
         _backpackIdx = 0;
-        eqBox.PointerInit();
+        EqBox.PointerInit();
     }
     
     private void ExitBackpackMode()
     {
         _backPackMode = false;
-        eqBox.ClearPointer(_backpackIdx);
+        EqBox.ClearPointer(_backpackIdx);
         _backpackIdx = 0;
     }
     public void SwitchBackpackMode()
@@ -110,7 +114,7 @@ public class Player
     }
     public void UpdateWealth()
     {
-        wBox.DisplayGoods();
+        WBox.DisplayGoods();
     }
     
     public bool IsInBackpack
@@ -118,19 +122,13 @@ public class Player
         get => _backPackMode;
     }
     
-    public int GetBackpackIdx
-    {
-        get => _backpackIdx;
-        
-    }
-    
     private void RightAdd()
     {
-        if (playerBackpack == null)
+        if (PlayerBackpack == null)
             return;
         
-        Tool t = playerBackpack.TryGetItem(_backpackIdx);
-        if (t.Space > 2)
+        Tool t = PlayerBackpack.TryGetItem(_backpackIdx); // moze sie zmienic w trakcie
+        if (t.Space > 2) // jak wyzej
             return;
         if (t.Space == 2)
         {
@@ -139,20 +137,20 @@ public class Player
         }
         if (LeftHand != null && LeftHand.Space == 2)
             return;
-        playerBackpack.Delete(_backpackIdx);
-        eqBox.ClearPointer(_backpackIdx); // TODO - w przyszlosci zmieniamy in place
-        eqBox.DisplayItems();
+        PlayerBackpack.Delete(_backpackIdx);
+        EqBox.ClearPointer(_backpackIdx); // TODO - w przyszlosci zmieniamy in place
+        EqBox.DisplayItems();
         _backpackIdx = 0;
-        eqBox.PointerInit();
+        EqBox.PointerInit();
         RightHand = t;
-        rhBox.DisplayHand();
+        RhBox.DisplayHand();
     }
     private void LeftAdd()
     {
-        if (playerBackpack == null)
+        if (PlayerBackpack == null)
             return;
         
-        Tool t = playerBackpack.TryGetItem(_backpackIdx);
+        Tool t = PlayerBackpack.TryGetItem(_backpackIdx);
         if (t.Space > 2)
             return;
         if (t.Space == 2)
@@ -163,42 +161,42 @@ public class Player
 
         if (RightHand != null && RightHand.Space == 2)
             return;
-        playerBackpack.Delete(_backpackIdx);
-        eqBox.ClearPointer(_backpackIdx); // TODO - w przyszlosci zmieniamy in place
-        eqBox.DisplayItems();
+        PlayerBackpack.Delete(_backpackIdx);
+        EqBox.ClearPointer(_backpackIdx); // TODO - w przyszlosci zmieniamy in place
+        EqBox.DisplayItems();
         _backpackIdx = 0;
-        eqBox.PointerInit();
+        EqBox.PointerInit();
         LeftHand = t;
-        lhBox.DisplayHand();
+        LhBox.DisplayHand();
     }
 
     private void LeftSwap()
     {
-        if (playerBackpack == null)
+        if (PlayerBackpack == null)
             return;
-        Tool? t = playerBackpack.TryGetItem(_backpackIdx);
+        Tool? t = PlayerBackpack.TryGetItem(_backpackIdx);
         if (t == null)
             return;
         if (LeftHand.Space == t.Space)
         {
             Tool newLeft = t;
-            if (playerBackpack.TryOverwriteItemAt(LeftHand, _backpackIdx))
+            if (PlayerBackpack.TryOverwriteItemAt(LeftHand, _backpackIdx))
             {
                 LeftHand = newLeft;
-                lhBox.DisplayHand();
-                eqBox.DisplayItemsLeavePointer();
+                LhBox.DisplayHand();
+                EqBox.DisplayItemsLeavePointer();
             }
         }
         else if (LeftHand.Space > t.Space)
         {
-            if (playerBackpack.IsEnoughCapForSwap(LeftHand.Space, t.Space))
+            if (PlayerBackpack.IsEnoughCapForSwap(LeftHand.Space, t.Space))
             {
                 Tool newLeft = t;
-                if (playerBackpack.TryOverwriteItemAt(LeftHand, _backpackIdx))
+                if (PlayerBackpack.TryOverwriteItemAt(LeftHand, _backpackIdx))
                 {
                     LeftHand = newLeft;
-                    lhBox.DisplayHand();
-                    eqBox.DisplayItemsLeavePointer();
+                    LhBox.DisplayHand();
+                    EqBox.DisplayItemsLeavePointer();
                 }
             }
         }
@@ -209,11 +207,11 @@ public class Player
                 if (RightHand != null)
                     return;
                 Tool newLeft = t;
-                if (playerBackpack.TryOverwriteItemAt(LeftHand, _backpackIdx))
+                if (PlayerBackpack.TryOverwriteItemAt(LeftHand, _backpackIdx))
                 {
                     LeftHand = newLeft;
-                    lhBox.DisplayHand();
-                    eqBox.DisplayItemsLeavePointer();
+                    LhBox.DisplayHand();
+                    EqBox.DisplayItemsLeavePointer();
                 }
                 
             }
@@ -222,31 +220,31 @@ public class Player
 
     private void RightSwap()
     {
-        if (playerBackpack == null)
+        if (PlayerBackpack == null)
             return;
-        Tool? t = playerBackpack.TryGetItem(_backpackIdx);
+        Tool? t = PlayerBackpack.TryGetItem(_backpackIdx);
         if (t == null)
             return;
         if (RightHand.Space == t.Space)
         {
             Tool newRight = t;
-            if (playerBackpack.TryOverwriteItemAt(RightHand, _backpackIdx))
+            if (PlayerBackpack.TryOverwriteItemAt(RightHand, _backpackIdx))
             {
                 RightHand = newRight;
-                rhBox.DisplayHand();
-                eqBox.DisplayItemsLeavePointer();
+                RhBox.DisplayHand();
+                EqBox.DisplayItemsLeavePointer();
             }
         }
         else if (RightHand.Space > t.Space)
         {
-            if (playerBackpack.IsEnoughCapForSwap(RightHand.Space, t.Space))
+            if (PlayerBackpack.IsEnoughCapForSwap(RightHand.Space, t.Space))
             {
                 Tool newRight = t;
-                if (playerBackpack.TryOverwriteItemAt(RightHand, _backpackIdx))
+                if (PlayerBackpack.TryOverwriteItemAt(RightHand, _backpackIdx))
                 {
                     RightHand = newRight;
-                    rhBox.DisplayHand();
-                    eqBox.DisplayItemsLeavePointer();
+                    RhBox.DisplayHand();
+                    EqBox.DisplayItemsLeavePointer();
                 }
             }
         }
@@ -257,11 +255,11 @@ public class Player
                 if (LeftHand != null)
                     return;
                 Tool newRight = t;
-                if (playerBackpack.TryOverwriteItemAt(RightHand, _backpackIdx))
+                if (PlayerBackpack.TryOverwriteItemAt(RightHand, _backpackIdx))
                 {
                     RightHand = newRight;
-                    rhBox.DisplayHand();
-                    eqBox.DisplayItemsLeavePointer();
+                    RhBox.DisplayHand();
+                    EqBox.DisplayItemsLeavePointer();
                 }
                 
             }
@@ -270,38 +268,38 @@ public class Player
 
     private void LeftAddToBp()
     {
-        if (!playerBackpack.IsEnoughCapForSwap(LeftHand.Space, 0))
+        if (!PlayerBackpack.IsEnoughCapForSwap(LeftHand.Space, 0))
             return;
         Tool t = LeftHand;
-        if (playerBackpack.TryAddItem(t))
+        if (PlayerBackpack.TryAddItem(t))
         {
             LeftHand = null;
-            lhBox.DisplayHand();
-            eqBox.DisplayItemsLeavePointer();
+            LhBox.DisplayHand();
+            EqBox.DisplayItemsLeavePointer();
         }
     }
     
     private void RightAddToBp()
     {
-        if (!playerBackpack.IsEnoughCapForSwap(RightHand.Space, 0))
+        if (!PlayerBackpack.IsEnoughCapForSwap(RightHand.Space, 0))
             return;
         Tool t = RightHand;
-        if (playerBackpack.TryAddItem(t))
+        if (PlayerBackpack.TryAddItem(t))
         {
             RightHand = null;
-            rhBox.DisplayHand();
-            eqBox.DisplayItemsLeavePointer();
+            RhBox.DisplayHand();
+            EqBox.DisplayItemsLeavePointer();
         }
     }
     public void TrySwap(char c)
     {
         if (c == 'l')
         {
-            if (LeftHand == null && playerBackpack.TryGetItem(_backpackIdx) == null)
+            if (LeftHand == null && PlayerBackpack.TryGetItem(_backpackIdx) == null)
                 return;
             if (LeftHand == null)
                 LeftAdd();
-            else if(playerBackpack.TryGetItem(_backpackIdx) == null)
+            else if(PlayerBackpack.TryGetItem(_backpackIdx) == null)
             {
                 LeftAddToBp();
             }
@@ -312,11 +310,11 @@ public class Player
         }
         else if (c == 'r')
         {
-            if (RightHand == null && playerBackpack.TryGetItem(_backpackIdx) == null)
+            if (RightHand == null && PlayerBackpack.TryGetItem(_backpackIdx) == null)
                 return;
             if (RightHand == null)
                 RightAdd();
-            else if (playerBackpack.TryGetItem(_backpackIdx) == null)
+            else if (PlayerBackpack.TryGetItem(_backpackIdx) == null)
             {
                 RightAddToBp();
             }
@@ -329,18 +327,27 @@ public class Player
 
     public void BackpackDrop()
     {
-        if (playerBackpack == null)
+        if (PlayerBackpack == null)
             return;
-        Tool? tool = playerBackpack.Delete(_backpackIdx);
+        Tool? tool = PlayerBackpack.Delete(_backpackIdx);
         if (tool == null)
         {
             return;
         }
-        eqBox.ClearPointer(_backpackIdx); // TODO - w przyszlosci zmieniamy in place
-        eqBox.DisplayItems();
+        EqBox.ClearPointer(_backpackIdx); // TODO - w przyszlosci zmieniamy in place
+        EqBox.DisplayItems();
         _backpackIdx = 0;
-        eqBox.PointerInit();
+        EqBox.PointerInit();
         _board.DropItem(tool);
     }
-    
+
+    public bool Dead()
+    {
+        return Health == 0;
+    }
+
+    public void UpdateVitals()
+    {
+        _vitalsBox.DisplayVitals();
+    }
 }

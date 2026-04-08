@@ -17,17 +17,19 @@ public class Game
     private RightHandBox _rightHandBox;
     private AboveActionErrorSpace _errSpace;
     private PlayerMovesBox _pmBox;
+    private FightBox _fightBox;
 
     
     
     public Game()
     {
-        _pmBox = new PlayerMovesBox();
         _actionBox = new ActionBox();
-        _board = new Board(_actionBox, _pmBox);
-        _player = new Player(_board);
-        
-        _vitalsBox = new VitalsBox(_player);
+        _fightBox = new FightBox();
+        _pmBox = new PlayerMovesBox();
+        _board = new Board(_actionBox, _pmBox, _fightBox, this);
+        _player = _board.GetPlayer;
+
+        _vitalsBox = _player.GetVitalsBox;
         _wealthBox = new WealthBox(_player);
         _eqBox = new EquipmentBox(_player);
         _leftHandBox = new LeftHandBox(_player);
@@ -35,11 +37,11 @@ public class Game
         _errSpace = new AboveActionErrorSpace();
         
         
-        _player.wBox = _wealthBox;
-        _player.eqBox = _eqBox;
-        _player.lhBox = _leftHandBox;
-        _player.rhBox = _rightHandBox;
-        _player.errSpace = _errSpace;
+        _player.WBox = _wealthBox;
+        _player.EqBox = _eqBox;
+        _player.LhBox = _leftHandBox;
+        _player.RhBox = _rightHandBox;
+        _player.ErrSpace = _errSpace;
 
     }
 
@@ -54,6 +56,7 @@ public class Game
         _board.Display();
         // _board.GenerateItems();
         _actionBox.DisplayFrame();
+        _fightBox.DisplayFrame();
         
         _vitalsBox.DisplayFrame();
         _vitalsBox.DisplayVitals();
@@ -75,28 +78,40 @@ public class Game
     public void WaitForMove()
     {
         var sh = new SeekHandler(_board);
-        var eh = new EscapeHandler(_player);
+        var eh = new EscapeHandler(_player,this);
         var mh = new MoveHandler(_board);
         var puh = new PickUpHandler(_player);
         var bmh = new BackpackModeHandler(_player);
+        var fh = new FightHandler(_board, _errSpace);
         var dmh = new DisallowedMoveHandler(_errSpace);
-
+        
+        fh.SetNext(sh);
         sh.SetNext(eh);
         eh.SetNext(mh);
         mh.SetNext(puh);
         puh.SetNext(bmh);
         bmh.SetNext(dmh);
+        
         while (true)
         {
             ConsoleKey key = Console.ReadKey(intercept: true).Key;
-            var res = sh.Handle(key);
+            var res = fh.Handle(key);
             if (res == HandleResult.ExitGame)
                 return;
         }
     }
     
-    public void End()
+    public void EndGood()
     {
         Console.WriteLine("Game Ended!");
+        Environment.Exit(0);
+    }
+
+    public void EndBad()
+    {
+        var endScreen = new EndScreen();
+        endScreen.EndGame();
+        Thread.Sleep(3000);
+        Environment.Exit(0);
     }
 }

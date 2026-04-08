@@ -1,3 +1,5 @@
+using PROJ.Enemies;
+
 namespace PROJ;
 
 public class Tile
@@ -36,13 +38,6 @@ public class Tile
         BlocksMovement = obj.Blocker;
         IsEmpty = false;
     }
-    public void RemoveLast()
-    {
-        if (Content == null || Objects == 0)
-            return;
-        Content.RemoveAt(Objects-1);
-        Objects--;
-    }
 
     public void Remove(int i)
     {
@@ -53,6 +48,24 @@ public class Tile
         if (Objects == 0)
             IsEmpty = true;
     }
-    
+
+    public char GetVisual()
+    {
+        try
+        {
+            return Content![0].Visual;
+        }
+        catch (NullReferenceException)
+        {
+            return ' ';
+        }
+    }
+
+    public Enemy? TryGetEnemy()
+    {
+        if (Objects > 0 && Content[0].Fightable)
+            return (Enemy)Content[0];
+        return null;
+    }
 }
     

@@ -51,9 +51,9 @@ public class EquipmentBox : Box
         Console.SetCursorPosition(GameConstants.EqBoxWritingPointStartLeft, GameConstants.EqBoxWritingPointStartTop);
         for (int i = 0; i < GameConstants.BackpackCapacity; i++)
         {
-            if (_player.playerBackpack.IsItemAt(i))
+            if (_player.PlayerBackpack.IsItemAt(i))
             {
-                Console.Write($"{i + 1}. {_player.playerBackpack.TryGetItem(i)?.Name} ({_player.playerBackpack.TryGetItem(i)?.Space})");
+                Console.Write($"{i + 1}. {_player.PlayerBackpack.TryGetItem(i)?.Name} ({_player.PlayerBackpack.TryGetItem(i)?.Space})");
             }
             else
             {
@@ -68,9 +68,9 @@ public class EquipmentBox : Box
         Console.SetCursorPosition(GameConstants.EqBoxWritingPointStartLeft, GameConstants.EqBoxWritingPointStartTop);
         for (int i = 0; i < GameConstants.BackpackCapacity; i++)
         {
-            if (_player.playerBackpack.IsItemAt(i))
+            if (_player.PlayerBackpack.IsItemAt(i))
             {
-                Console.Write($"{i + 1}. {_player.playerBackpack.TryGetItem(i)?.Name} ({_player.playerBackpack.TryGetItem(i)?.Space})");
+                Console.Write($"{i + 1}. {_player.PlayerBackpack.TryGetItem(i)?.Name} ({_player.PlayerBackpack.TryGetItem(i)?.Space})");
             }
             else
             {

@@ -1,14 +1,20 @@
+using PROJ.Fight;
+using PROJ.Fight.Interfaces;
+using PROJ.GameConstansts;
+
 namespace PROJ.Tools.Classes;
 
 public abstract class Weapon : Tool
 {
-    public abstract int Damage { get; }
-    public abstract float Cooldown { get; }
-    public abstract int Range { get; }
+    public virtual int Damage => GameConstants.BaseDamage;
+    // public abstract float Cooldown { get; }
+    // public abstract int Range { get; }
 
 
     public Weapon(Player player) : base(player){}
 
     
     public abstract bool TwoHanded(); // TODO decyzja - size i twohandedness to to samo czy nie
+    
+    
 }

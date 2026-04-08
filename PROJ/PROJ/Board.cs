@@ -1,9 +1,8 @@
 using PROJ.Builder.Classes;
+using PROJ.Enemies;
+using PROJ.Fight;
 using PROJ.GameConstansts;
-using PROJ.Goods.Classes.Valuables;
 using PROJ.Tools.Classes;
-using PROJ.Tools.Classes.Items;
-using PROJ.Tools.Classes.Weapons;
 
 namespace PROJ;
 using System;
@@ -16,9 +15,16 @@ public class Board
     private Player _player;
 
     private ActionBox _actionBox;
+
+    private FightBox _fightBox;
     
     private int _currentlySeeked;
     private PlayerMovesBox _pmBox;
+
+    public bool FightMode;
+    private FightMenu _menu;
+
+    private Game _game;
     
 
 
@@ -35,8 +41,9 @@ public class Board
 
         if (Tiles[y, x].IsEmpty)
             return ' ';
-        if (Tiles[y, x].Content != null && Tiles[y, x].Objects > 0)
-            return Tiles[y,x].Content[0].Visual; // TODO pusibul nul
+        if (Tiles[y, x].Content != null &&
+            Tiles[y, x].Objects > 0) // TODO pusibul nul - teorytycznie miedzy linijkami może się zmienić
+            return Tiles[y, x].GetVisual();
 
         return ' ';
     }
@@ -46,15 +53,6 @@ public class Board
         Console.SetCursorPosition(GameConstants.BoardLeft + x, GameConstants.BoardTop + y);
         Console.Write(symbol);
     }
-    private void AddObjToBoard(int x, int y, BoardObject obj) //TODO what if i add to user space?
-    {
-        obj.X = x;
-        obj.Y = y;
-        obj.ObjBoard = this;
-        Tiles[x, y].AddObj(obj);
-        DrawAt(y, x, GetVisualAt(y,x));
-        
-    }
 
     public void RemoveFromMap(int x, int y)
     {
@@ -62,12 +60,18 @@ public class Board
         DrawAt(y,x,GetVisualAt(y,x));
         
     }
-    public Board(ActionBox actionBox, PlayerMovesBox pmBox)
+    public Board(ActionBox actionBox, PlayerMovesBox pmBox, FightBox fightBox, Game g) // problem - potrzebuje playera do wywolania generate - Pamietac ze miedzy konstruktorem a generate musi byc player assignment
     {
         _currentlySeeked = 0;
         _actionBox = actionBox;
         _pmBox = pmBox;
+        _fightBox = fightBox;
+        _player = new Player(this);
+        FightMode = false;
+        _game = g;
     }
+
+    public Player GetPlayer => _player;
 
     private void CentralHallWithLootgenerate(DungeonBuilder builder)
     {
@@ -89,29 +93,34 @@ public class Board
     private void OnlyMazeGenerate(DungeonBuilder builder)
     {
         builder.CreateFilledDungeon();
-        builder.AddCorridors();
+        // builder.AddCorridors(10);
     }
 
     private void MixGenerate(DungeonBuilder builder)
     {
         builder.CreateEmptyDungeon();
+        // builder.CreateFilledDungeon();
         builder.AddCentralHall(10,7);
-        builder.AddRooms(4);
-        builder.AddCorridors();
-        builder.AddWeapons(30);
-        builder.AddItems(20);
+        builder.AddRooms(10);
+        builder.AddCorridors(10);
+        builder.AddWeapons(20);
+        builder.AddItems(10);
+        builder.AddEnemies(5);
     }
     
     
     
     public void Generate()
     {
+        // if(_player)
         PlayerMovesBuilder pmb = new PlayerMovesBuilder(_pmBox);
         DungeonBuilder builder = new DungeonBuilder(this, _player, pmb);
         // OnlyMazeGenerate(builder);
-        // MixGenerate(builder);
+        MixGenerate(builder);
         // ManySmallRoomsWithLootGenerate(builder);
-        CentralHallWithLootgenerate(builder);
+        // CentralHallWithLootgenerate(builder);
+        // builder.CreateFilledDungeon();
+        builder.AddCentralHall(10,10);
         Tiles = builder.GetDungeon();
     }
 
@@ -148,7 +157,6 @@ public class Board
         player.Position[0] = 1;
         player.Position[1] = 1;
     }
-
     
     public void MoveRight()
     {
@@ -166,6 +174,8 @@ public class Board
         DrawAt(x,y, GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        _fightBox.AfterMoveAssesment(GetNearestEnemy());
+
     }
     public void MoveLeft()
     {
@@ -183,6 +193,7 @@ public class Board
 
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        _fightBox.AfterMoveAssesment(GetNearestEnemy());
     }
     public void MoveDown()
     {
@@ -200,6 +211,7 @@ public class Board
         DrawAt(x,y,GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        _fightBox.AfterMoveAssesment(GetNearestEnemy());
     }
     public void MoveUp()
     {
@@ -216,6 +228,7 @@ public class Board
         DrawAt(x,y,GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        _fightBox.AfterMoveAssesment(GetNearestEnemy());
     }
     public void Display()
     {
@@ -242,42 +255,7 @@ public class Board
             Console.Write(sign2Lines[i]);
         }
     } 
-    public void GenerateItems()
-    {
-        // itemki robimy
-        Shiv shiv = new Shiv(_player);
-        SailorsCutlass sc = new SailorsCutlass(_player);
-        BoatHook bh = new BoatHook(_player);
-        BoatHook bh1 = new BoatHook(_player);
-        SailorsCutlass sc1 = new SailorsCutlass(_player);
-        
-        
-
-        Physician_s_Ledger pl = new Physician_s_Ledger(_player);
-        PlagueMask pm = new PlagueMask(_player);
-        Rosary r = new Rosary(_player);
-
-
-        // for (int i = 2; i < GameConstants.Width - 1; i++)
-        // {
-        //     AddObjToBoard(8,i,new Wall());
-        // }
-
-
-        AddObjToBoard(7, 10, shiv);
-        AddObjToBoard(7, 10, bh1);
-        AddObjToBoard(7, 10, sc1);
-        AddObjToBoard(12, 34, sc);
-        AddObjToBoard(1, 8, bh);
-        AddObjToBoard(15,15,pl);
-        AddObjToBoard(20,20,pm);
-        AddObjToBoard(17,17,r);
-        AddObjToBoard(10,10,new Coin());
-        AddObjToBoard(11,11,new Coin());
-        AddObjToBoard(13,13,new Gold());
-
-    }
-
+ 
     public void RefreshActionBox(int x, int y)
     {
         _actionBox.AfterMoveAsessment(Tiles[x,y].Content,Tiles[x,y].Objects); 
@@ -300,5 +278,114 @@ public class Board
         Tiles[x,y].AddObj(tool);
         DrawAt(y,x,GetVisualAt(y,x));
     }
+
+    private bool IsEnemy(int x, int y)
+    {
+        if (Tiles[y, x].Objects > 0 && Tiles[y, x].Content[0].Fightable) // TODO WIEM WIEM WIEM KURCZe
+            return true;
+        return false;
+    }
+
+    public bool HasEnemiesNearby() // TODO - gra zakłada że jest jeden player - jeden enemy nearby
+    {
+        if (_player.Position[1] > 1 && IsEnemy(_player.Position[0], _player.Position[1] - 1))
+            return true;
+        if (_player.Position[1] < GameConstants.Height - 2 && IsEnemy(_player.Position[0], _player.Position[1] + 1))
+            return true;
+        if (_player.Position[0] > 0 && IsEnemy(_player.Position[0] - 1, _player.Position[1]))
+            return true;
+        if (_player.Position[0] < GameConstants.Width - 2 && IsEnemy(_player.Position[0] + 1, _player.Position[1]))
+            return true;
+        return false;
+    }
+
+    public Enemy? GetNearestEnemy()
+    {
+        int x = _player.Position[0];
+        int y = _player.Position[1];
+        if (y> 1 && IsEnemy(x, y - 1))
+            return (Enemy)Tiles[y-1,x].Content[0];
+        if (y < GameConstants.Height - 2 && IsEnemy(x, y+1))
+            return (Enemy)Tiles[y+1,x].Content[0];
+        if (x > 0 && IsEnemy(x-1, y))
+            return (Enemy)Tiles[y,x-1].Content[0];
+        if (x < GameConstants.Width - 2 && IsEnemy(x + 1, y))
+            return (Enemy)Tiles[y, x + 1].Content[0];
+        return null;
+    }
+
+    public void FightNearestEnemy()
+    {
+        FightMode = true;
+        
+        if (_player.Position[1] > 1 && IsEnemy(_player.Position[0], _player.Position[1] - 1))
+        {
+            Enemy? e = Tiles[_player.Position[1] - 1, _player.Position[0]].TryGetEnemy();
+            if (e == null)
+                return;
+            _menu = new FightMenu(_player,e, _fightBox, _game);
+            var res = _menu.StartFight();
+            if (!res) // killed enemy
+            {
+                return;
+            }
+            Tiles[_player.Position[1]-1, _player.Position[0]].Reset();
+            DrawAt( _player.Position[0],_player.Position[1]-1, GetVisualAt(_player.Position[0],_player.Position[1]-1));
+            return;
+        }
+
+
+        if (_player.Position[1] < GameConstants.Height - 2 && IsEnemy(_player.Position[0], _player.Position[1] + 1))
+        {
+            Enemy? e = Tiles[_player.Position[1] + 1, _player.Position[0]].TryGetEnemy();
+            if (e == null)
+                return;
+            _menu = new FightMenu(_player,e, _fightBox,_game);
+            var res = _menu.StartFight();
+            if (!res) // killed enemy
+            {
+                return;
+            }
+            Tiles[_player.Position[1] + 1, _player.Position[0]].Reset();
+            DrawAt( _player.Position[0],_player.Position[1] + 1, GetVisualAt( _player.Position[0],_player.Position[1] + 1));
+            return;
+        }
+
+        if (_player.Position[0] > 0 && IsEnemy(_player.Position[0] - 1, _player.Position[1]))
+        {
+            Enemy? e = Tiles[_player.Position[1], _player.Position[0] - 1].TryGetEnemy();
+            if (e == null)
+                return;
+            _menu = new FightMenu(_player,e, _fightBox,_game);
+            var res = _menu.StartFight();
+            if (!res) // killed enemy
+            {
+                return;
+            }
+            Tiles[_player.Position[1], _player.Position[0] - 1].Reset();
+            DrawAt( _player.Position[0] - 1,_player.Position[1],GetVisualAt( _player.Position[0] - 1,_player.Position[1]));
+
+            return;
+            
+        }
+
+        if (_player.Position[0] < GameConstants.Width - 2 && IsEnemy(_player.Position[0] + 1, _player.Position[1]))
+        {
+            Enemy? e = Tiles[_player.Position[1], _player.Position[0] + 1].TryGetEnemy();
+            if (e == null)
+                return;
+            _menu = new FightMenu(_player,e, _fightBox,_game);
+            var res = _menu.StartFight();
+            if (!res) // killed enemy
+            {
+                return;
+            }
+            Tiles[_player.Position[1], _player.Position[0] + 1].Reset();
+            DrawAt( _player.Position[0] + 1, _player.Position[1],GetVisualAt( _player.Position[0] + 1,_player.Position[1]));
+            return;
+        }
+        FightMode = false;
+    }
+    
     
 }

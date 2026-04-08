@@ -15,4 +15,5 @@ public abstract class BoardObject : IPickupable
     public abstract void PickUp(Player player);
     
     public abstract bool Blocker { get; }
+    public abstract bool Fightable { get; }
 }

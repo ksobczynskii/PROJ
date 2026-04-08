@@ -1,6 +1,7 @@
-using PROJ.DSA;
+using PROJ.Enemies;
 using PROJ.GameConstansts;
 using PROJ.Tools.Classes;
+using PROJ.Tools.Classes.Decorators;
 using PROJ.Tools.Classes.Items;
 using PROJ.Tools.Classes.Weapons;
 
@@ -10,19 +11,40 @@ public class DungeonBuilder : IDungeonBuilder
 {
     struct Room
     {
-        public int left;
-        public int top;
-        public int width;
-        public int height;
-        public bool connected;
+        public int Left;
+        public int Top;
+        public int Width;
+        public int Height;
+        public bool Connected;
     }
     
-    
+
+    struct Point
+    {
+        public int Left;
+        public int Top;
+
+
+
+        public Point(int l, int t)
+        {
+            Left = l;
+            Top = t;
+        }
+    }
+
+    private enum Direction
+    {
+        South = 0,
+        North = 1,
+        West = 2,
+        East = 3,
+    }
+
     private Tile[,] _tiles;
     private Board _board;
     private List<Room> _rooms;
     private bool _playerRoom;
-    private bool _corridors;
     private Player _player;
     private PlayerMovesBuilder _pmb;
     
@@ -33,7 +55,6 @@ public class DungeonBuilder : IDungeonBuilder
     {
         _pmb = pmb;
         _player = p;
-        _corridors = false;
         _playerRoom = false;
         _board = b;
         _rooms = new List<Room>();
@@ -73,7 +94,7 @@ public class DungeonBuilder : IDungeonBuilder
         for (int j = 1; j < GameConstants.Height-1; j++)
         {
 
-            _tiles[j, 0] = new Tile();;
+            _tiles[j, 0] = new Tile();
             _tiles[j, GameConstants.Width - 1] = new Tile();
             
             _tiles[j,0].AddObj(new FrameObject('║'));
@@ -146,13 +167,11 @@ public class DungeonBuilder : IDungeonBuilder
             }
         }
 
-        Room r = new Room() { top = top, height = height, width = width, left = left, connected = false };
+        Room r = new Room() { Top = top, Height = height, Width = width, Left = left, Connected = false };
         _rooms.Add(r);
-        OpenRooms();
-        
     }
 
-    private bool DoRoomsOverlap(int left, int top, int width, int height)
+    private bool DoRoomsOverlap(int left, int top, int width, int height) // TODO zmien - niech pokoje paja przerwe 1 od siebie
     {
         int newLeft = left;
         int newRight = left + width - 1;
@@ -161,31 +180,28 @@ public class DungeonBuilder : IDungeonBuilder
 
         foreach (var room in _rooms)
         {
-            int roomLeft = room.left;
-            int roomRight = room.left + room.width - 1;
-            int roomTop = room.top;
-            int roomBottom = room.top + room.height - 1;
+            int roomLeft = room.Left;
+            int roomRight = room.Left + room.Width - 1;
+            int roomTop = room.Top;
+            int roomBottom = room.Top + room.Height - 1;
 
             bool noOverlap =
-                newRight < roomLeft ||
-                newLeft > roomRight ||
-                newBottom < roomTop ||
-                newTop > roomBottom;
+                newRight < roomLeft - 1 ||
+                newLeft - 1 > roomRight ||
+                newBottom < roomTop - 1 ||
+                newTop - 1 > roomBottom;
             if (!noOverlap)
                 return true;
         }
-        
-        
-        
         return false;
     }
 
     private void DrawRoom(Room room)
     {
-        int left = room.left;
-        int right = room.left + room.width - 1;
-        int top = room.top;
-        int bottom = room.top + room.height - 1;
+        int left = room.Left;
+        int right = room.Left + room.Width - 1;
+        int top = room.Top;
+        int bottom = room.Top + room.Height - 1;
 
         for (int x = left; x <= right; x++)
         {
@@ -226,18 +242,18 @@ public class DungeonBuilder : IDungeonBuilder
             }
         }
     }
-    private bool AddRoom()
+    private void AddRoom()
     {
         Random r = new Random();
         int width = 0;
         int height = 0;
         int left = 0;
         int top = 0;
-        int i = 0;
+        int i;
         for (i = 0; i < GameConstants.RoomInsertAttempts; i++)
         {
-            width = r.Next() % (GameConstants.Width / 4) + 3;
-            height = r.Next() % (GameConstants.Height / 4) + 3;
+            width = r.Next() % (GameConstants.Width / 4) + 5;
+            height = r.Next() % (GameConstants.Height / 4) + 5;
             left = r.Next() % (GameConstants.Width - width - 2) + 2;
             top = r.Next() % (GameConstants.Height - height - 2) + 2;
             
@@ -246,41 +262,368 @@ public class DungeonBuilder : IDungeonBuilder
         }
 
         if (i == GameConstants.RoomInsertAttempts)
-            return false;
+            return;
 
         if (width == 0)
-            return false;
-        Room room = new Room() { height = height, width = width, left = left, top = top, connected = false};
+            return;
+        Room room = new Room() { Height = height, Width = width, Left = left, Top = top, Connected = false};
         
         _rooms.Add(room);
         DrawRoom(room);
-        return true;
 
     }
 
-    private bool AddPlayerRoom() // Funkcja zakłada gracza w (1,1)
+    private void AddPlayerRoom() // Funkcja zakłada gracza w (1,1)
     {
         Random r = new Random();
         int width = 0;
         int height = 0;
-        int i = 0;
+        int i;
         for (i = 0; i < GameConstants.RoomInsertAttempts; i++)
         {
-            width = r.Next() % (GameConstants.Width / 4) + 3;
-            height = r.Next() % (GameConstants.Height / 4) + 3;
-            if (!DoRoomsOverlap(1, 1, width, height))
+            width = r.Next() % (GameConstants.Width / 4) + 5;
+            height = r.Next() % (GameConstants.Height / 4) + 5;
+            if (!DoRoomsOverlap(0, 0, width, height))
                 break;
         }
+
         if (i == GameConstants.RoomInsertAttempts)
-            return false;
+            return;
         if (width == 0)
-            return false;
-        Room room = new Room() { height = height, width = width, left = 0, top = 0, connected = false};
+            return;
+        Room room = new Room() { Height = height, Width = width, Left = 0, Top = 0, Connected = false};
         _rooms.Add(room);
         DrawRoom(room);
         _playerRoom = true;
-        return true;
     }
+
+    private int GetDisconnectedRoom()
+    {
+        for (int i =0; i < _rooms.Count; i++)
+        {
+            if (!_rooms[i].Connected)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private readonly Random _rng = new Random();
+
+    private (Point?, Direction) GetRandomWall(Room room)
+    {
+        List<(Point, Direction)> candidates = new List<(Point, Direction)>();
+
+        int left = room.Left;
+        int right = room.Left + room.Width - 1;
+        int top = room.Top;
+        int bottom = room.Top + room.Height - 1;
+
+        for (int j = left + 1; j < right; j++)
+        {
+            if (_tiles[top, j].BlocksMovement &&
+                _tiles[top, j - 1].BlocksMovement &&
+                _tiles[top, j + 1].BlocksMovement)
+            {
+                candidates.Add((new Point(j, top), Direction.North));
+            }
+        }
+
+        for (int j = left + 1; j < right; j++)
+        {
+            if (_tiles[bottom, j].BlocksMovement &&
+                _tiles[bottom, j - 1].BlocksMovement &&
+                _tiles[bottom, j + 1].BlocksMovement)
+            {
+                candidates.Add((new Point(j, bottom), Direction.South));
+            }
+        }
+
+        for (int i = top + 1; i < bottom; i++)
+        {
+            if (_tiles[i, left].BlocksMovement &&
+                _tiles[i - 1, left].BlocksMovement &&
+                _tiles[i + 1, left].BlocksMovement)
+            {
+                candidates.Add((new Point(left, i), Direction.West));
+            }
+        }
+
+        for (int i = top + 1; i < bottom; i++)
+        {
+            if (_tiles[i, right].BlocksMovement &&
+                _tiles[i - 1, right].BlocksMovement &&
+                _tiles[i + 1, right].BlocksMovement)
+            {
+                candidates.Add((new Point(right, i), Direction.East));
+            }
+        }
+
+        if (candidates.Count == 0)
+            return (null, Direction.South);
+
+        return candidates[_rng.Next(candidates.Count)];
+    }
+
+    private bool CanDigNorth(Point p)
+    {
+        int left = p.Left;
+        int top = p.Top - 1;
+
+        while (top > 1)
+        {
+            if (IsInRoomCorner(top, left))
+                return false;
+
+            if (_tiles[top, left].BlocksMovement && !_tiles[top - 1, left].BlocksMovement)
+                return true;
+
+            top--;
+        }
+
+        return false;
+    }
+
+    private bool CanDigSouth(Point p)
+    {
+        int left = p.Left;
+        int top = p.Top + 1;
+
+        while (top < GameConstants.Height - 2)
+        {
+            if (IsInRoomCorner(top, left))
+                return false;
+
+            if (_tiles[top, left].BlocksMovement && !_tiles[top + 1, left].BlocksMovement)
+                return true;
+
+            top++;
+        }
+
+        return false;
+    }
+
+    private bool CanDigWest(Point p)
+    {
+        int left = p.Left - 1;
+        int top = p.Top;
+
+        while (left > 1)
+        {
+            if (IsInRoomCorner(top, left))
+                return false;
+
+            if (_tiles[top, left].BlocksMovement && !_tiles[top, left - 1].BlocksMovement)
+                return true;
+
+            left--;
+        }
+
+        return false;
+    }
+
+    private bool CanDigEast(Point p)
+    {
+        int left = p.Left + 1;
+        int top = p.Top;
+
+        while (left < GameConstants.Width - 2)
+        {
+            if (IsInRoomCorner(top, left))
+                return false;
+
+            if (_tiles[top, left].BlocksMovement && !_tiles[top, left + 1].BlocksMovement)
+                return true;
+
+            left++;
+        }
+
+        return false;
+    }
+    
+
+    private bool CanDig(Point p, Direction dir)
+    {
+        switch (dir)
+        {
+            case Direction.North:
+                return CanDigNorth(p);
+            case Direction.South:
+                return CanDigSouth(p);
+            case Direction.East:
+                return CanDigEast(p);
+            case Direction.West:
+                return CanDigWest(p);
+            default:
+                throw new InvalidOperationException("Invalid Direction param");
+        }
+        
+    }
+
+    private void CarveNorth(Point p)
+    {
+        _tiles[p.Top,p.Left].Reset();
+        int left = p.Left;
+        int top = p.Top - 1;
+
+        while (top > 1)
+        {
+            if (_tiles[top, left].BlocksMovement && !_tiles[top - 1, left].BlocksMovement)
+                break;
+
+            if (left > 1)
+            {
+                _tiles[top, left - 1].Reset();
+                _tiles[top, left - 1].AddObj(new Wall());
+            }
+
+            if (left < GameConstants.Width - 2)
+            {
+                _tiles[top, left + 1].Reset();
+                _tiles[top, left + 1].AddObj(new Wall());
+            }
+
+            _tiles[top, left].Reset();
+            top--;
+        }
+        _tiles[top, left].Reset();
+    }
+
+    private void CarveSouth(Point p)
+    {
+        _tiles[p.Top,p.Left].Reset();
+        int left = p.Left;
+        int top = p.Top + 1;
+
+        while (top < GameConstants.Height - 2)
+        {
+            if (_tiles[top, left].BlocksMovement && !_tiles[top + 1, left].BlocksMovement)
+                break;
+
+            if (left > 1)
+            {
+                _tiles[top, left - 1].Reset();
+                _tiles[top, left - 1].AddObj(new Wall());
+            }
+
+            if (left < GameConstants.Width - 2)
+            {
+                _tiles[top, left + 1].Reset();
+                _tiles[top, left + 1].AddObj(new Wall());
+            }
+
+            _tiles[top, left].Reset();
+            top++;
+        }
+        _tiles[top, left].Reset();
+    }
+
+    private void CarveWest(Point p)
+    {
+        _tiles[p.Top,p.Left].Reset();
+        int left = p.Left - 1;
+        int top = p.Top;
+
+        while (left > 1)
+        {
+            if (_tiles[top, left].BlocksMovement && !_tiles[top, left - 1].BlocksMovement)
+                break;
+
+            if (top > 1)
+            {
+                _tiles[top - 1, left].Reset();
+                _tiles[top - 1, left].AddObj(new Wall());
+            }
+
+            if (top < GameConstants.Height - 2)
+            {
+                _tiles[top + 1, left].Reset();
+                _tiles[top + 1, left].AddObj(new Wall());
+            }
+
+            _tiles[top, left].Reset();
+            left--;
+        }
+        _tiles[top, left].Reset();
+    }
+
+    private void CarveEast(Point p)
+    {
+        _tiles[p.Top,p.Left].Reset();
+        int left = p.Left + 1;
+        int top = p.Top;
+
+        while (left < GameConstants.Width - 2)
+        {
+            if (_tiles[top, left].BlocksMovement && !_tiles[top, left + 1].BlocksMovement)
+                break;
+
+            if (top > 1)
+            {
+                _tiles[top - 1, left].Reset();
+                _tiles[top - 1, left].AddObj(new Wall());
+            }
+
+            if (top < GameConstants.Height - 2)
+            {
+                _tiles[top + 1, left].Reset();
+                _tiles[top + 1, left].AddObj(new Wall());
+            }
+
+            _tiles[top, left].Reset();
+            left++;
+        }
+        _tiles[top, left].Reset();
+    }
+    private void CarveCorridors(Point p, Direction dir)
+    {
+        switch (dir)
+        {
+            case Direction.North:
+                CarveNorth(p);
+                break;
+            case Direction.South:
+                CarveSouth(p);
+                break;
+            case Direction.East:
+                CarveEast(p);
+                break;
+            case Direction.West:
+                CarveWest(p);
+                break;
+            default:
+                throw new InvalidOperationException("Invalid Direction param");
+        }
+    }
+    private void AddCorridor()
+    {
+        int rIdx = GetDisconnectedRoom();
+        if (rIdx == -1)
+            return;
+        Room r = _rooms[rIdx];
+        
+        for (int i = 0; i < GameConstants.CorridorGenerationAttempts; i++)
+        {
+            (Point? p, Direction dir) = GetRandomWall(r);
+            if (p == null)
+                return;
+            if (CanDig((Point)p,dir))
+            {
+                CarveCorridors((Point)p, dir);
+                r.Connected = true;
+                _rooms[rIdx] = r;
+                return;
+            }
+        }
+    }
+    public void AddCorridors(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            AddCorridor();
+        }
+    }
+
     public void AddRooms(int counts)
     {
         for (int i = 0; i < counts; i++)
@@ -292,183 +635,31 @@ public class DungeonBuilder : IDungeonBuilder
                 AddRoom();
             }
         }
-        // AddCorridors();
-        OpenRooms();
     }
 
-    private bool IsInRoom(int i, int j)
+    private bool IsInRoomCorner(int i, int j)
     {
         foreach (var room in _rooms)
         {
-            if (j >= room.left &&
-                j <= room.left + room.width - 1 &&
-                i >= room.top &&
-                i <= room.top + room.height - 1)
+            int left = room.Left;
+            int right = room.Left + room.Width - 1;
+            int top = room.Top;
+            int bottom = room.Top + room.Height - 1;
+
+            bool isCorner =
+                (i == top && j == left) ||
+                (i == top && j == right) ||
+                (i == bottom && j == left) ||
+                (i == bottom && j == right);
+
+            if (isCorner)
                 return true;
         }
 
         return false;
     }
-    private void FillTile(int i, int j, bool Wall, UnionFind<(int i, int j)> uf, PriorityQueue<(int i, int j), int> pq, Random r)
-    {
-        if (IsInRoom(i, j))
-            return;
-        _tiles[i, j].Reset();
-        if (Wall)
-        {
-            _tiles[i, j].AddObj(new Wall());
-            pq.Enqueue((i, j), r.Next(100));
-        }
-        else
-        {
-            uf.Add((i,j));
-        }
-    }
-    private void PreKruskalGeneration(UnionFind<(int i, int j)> uf, PriorityQueue<(int i, int j), int> pq)
-    {
-        Random r = new Random();
-        bool Wall = false;
-        for (int i = 1; i < GameConstants.Height-1; i++)
-        {
-            for (int j = 1; j < GameConstants.Width - 1; j++)
-            {
-                if (j % 2 == 0)
-                    FillTile(i,j,Wall, uf, pq, r);
-                else
-                {
-                    FillTile(i, j, !Wall, uf, pq, r);
-                }
-            }
-            Wall = !Wall;
-        }
-    }
 
-
-    private bool AreAlmostDisjoint(int s1, int s2, int s3, int s4)
-    {
-        int[] values = { s1, s2, s3, s4 };
-        int times = 0;
-        for (int i = 0; i < values.Length; i++)
-        {
-            for (int j = i + 1; j < values.Length; j++)
-            {
-                if (values[i] == values[j] && values[i] != -1)
-                    times++;
-            }
-        }
-
-        return times < 2;
-    }
-    private bool AreDisjoint(int s1, int s2, int s3, int s4)
-    {
-        int[] values = { s1, s2, s3, s4 };
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            for (int j = i + 1; j < values.Length; j++)
-            {
-                if (values[i] == values[j] && values[i] != -1)
-                    return false;
-            }
-        }
-
-        return true;
-    }
     
-    private bool AnyDisjoint(int s1, int s2, int s3, int s4)
-    {
-        int[] values = { s1, s2, s3, s4 };
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            for (int j = i + 1; j < values.Length; j++)
-            {
-                if (values[i] != values[j] && values[i] != -1)
-                    return true;
-            }
-        }
-
-        return false;
-    }
-    private void Kruskal(UnionFind<(int i, int j)> uf, PriorityQueue<(int i, int j), int> pq)
-    {
-        while (pq.Count > 0)
-        {
-            (int i, int j) = pq.Dequeue();
-            if (AreAlmostDisjoint(uf.Find((i - 1, j)), uf.Find((i + 1, j)), uf.Find((i, j - 1)), uf.Find((i, j + 1))))
-            {
-                uf.Union((i - 1, j), (i + 1, j));
-                uf.Union((i - 1, j), (i, j-1));
-                uf.Union((i - 1, j), (i, j+1));
-                uf.Add((i,j));
-                uf.Union((i - 1, j), (i, j));
-                _tiles[i,j].Reset();
-            }
-        }
-    }
-
-    private bool IsInside(int i, int j)
-    {
-        return i >= 0 && i < GameConstants.Height &&
-               j >= 0 && j < GameConstants.Width;
-    }
-
-    private bool IsEmptyTile(int i, int j)
-    {
-        return IsInside(i, j) && !_tiles[i, j].BlocksMovement;
-    }
-
-    private void OpenRooms()
-    {
-        Random _rng = new Random();
-        foreach (var room in _rooms)
-        {
-            List<(int i, int j)> candidates = new List<(int i, int j)>();
-
-            int left = room.left;
-            int right = room.left + room.width - 1;
-            int top = room.top;
-            int bottom = room.top + room.height - 1;
-
-            for (int j = left + 1; j < right; j++)
-            {
-                if (IsEmptyTile(top - 1, j))
-                    candidates.Add((top, j));
-            }
-
-            for (int j = left + 1; j < right; j++)
-            {
-                if (IsEmptyTile(bottom + 1, j))
-                    candidates.Add((bottom, j));
-            }
-
-            for (int i = top + 1; i < bottom; i++)
-            {
-                if (IsEmptyTile(i, left - 1))
-                    candidates.Add((i, left));
-            }
-
-            for (int i = top + 1; i < bottom; i++)
-            {
-                if (IsEmptyTile(i, right + 1))
-                    candidates.Add((i, right));
-            }
-
-            if (candidates.Count > 0)
-            {
-                var hole = candidates[_rng.Next(candidates.Count)];
-                _tiles[hole.i, hole.j].Reset();
-            }
-        }
-    }
-    public void AddCorridors() // TODO Change
-    {
-        UnionFind<(int i, int j)> uf = new UnionFind<(int i, int j)>();
-        PriorityQueue<(int i, int j), int> pq = new PriorityQueue<(int i, int j), int>();
-        PreKruskalGeneration(uf, pq);
-        Kruskal(uf, pq);
-        OpenRooms();
-    }
     private void AddObjToBoard(int x, int y, BoardObject obj)
     {
         obj.X = x;
@@ -477,23 +668,24 @@ public class DungeonBuilder : IDungeonBuilder
         _tiles[x, y].AddObj(obj);
         
     }
-    private bool AddToMap(BoardObject obj)
+    private void AddToMap(BoardObject obj, bool resetTile = false)
     {
         Random r = new Random();
         if (_rooms.Count > 0)
         {
             Room room = _rooms[r.Next(_rooms.Count)];
 
-            int left = room.left;
-            int right = room.left + room.width - 1;
-            int top = room.top;
-            int bottom = room.top + room.height - 1;
+            int left = room.Left;
+            int right = room.Left + room.Width - 1;
+            int top = room.Top;
+            int bottom = room.Top + room.Height - 1;
 
             int j = r.Next(left + 1, right);
             int i = r.Next(top + 1, bottom);
-
+            if(resetTile)
+                _tiles[i,j].Reset();
             AddObjToBoard(i,j,obj);
-            return true;
+            return;
         }
 
         for (int attempt = 0; attempt < 100; attempt++)
@@ -505,10 +697,9 @@ public class DungeonBuilder : IDungeonBuilder
                 continue;
 
             AddObjToBoard(i,j,obj);
-            return true;
+            return;
         }
 
-        return false;
     }
     public void AddItems(int count)
     {
@@ -529,18 +720,45 @@ public class DungeonBuilder : IDungeonBuilder
     public void AddWeapons(int count)
     {
         _pmb.AddPickup();
-        var weapons = new Func<Tool>[]
+        var weapons = new Func<Weapon>[]
         {
             () => new Shiv(_player),
             () => new SailorsCutlass(_player),
-            () => new BoatHook(_player)
+            () => new BoatHook(_player),
+            () => new Cross(_player)
         };
         Random r = new Random();
-        var s = new Shiv(_player);
-        // _tiles[1, 2].AddObj(s);
         for (int i = 0; i < count; i++)
         {
-            AddToMap(weapons[r.Next(weapons.Length)]());
+            int power = r.Next(4);
+            if(power==0)
+                AddToMap(weapons[r.Next(weapons.Length)]());
+            else if(power==1)
+                AddToMap(new UnluckyWeaponDecorator(_player,weapons[r.Next(weapons.Length)]()));
+            else if(power==2)
+            {
+                AddToMap(new StrongWeaponDecorator(_player,weapons[r.Next(weapons.Length)]()));
+            }
+            else
+            {
+                AddToMap(new UnluckyWeaponDecorator(_player,new StrongWeaponDecorator(_player,weapons[r.Next(weapons.Length)]())));
+            }
+        }
+    }
+
+    public void AddEnemies(int count)
+    {
+        _pmb.AddEnemy(); // TODO Add Enemy
+        var enemies = new Func<Enemy>[]
+        {
+            () => new Infected(),
+            () => new Guard(),
+            () => new Rat(),
+        };
+        Random r = new Random();
+        for (int i = 0; i < count; i++)
+        {
+            AddToMap(enemies[r.Next(enemies.Length)](), true);
         }
     }
 

@@ -64,16 +64,44 @@ public static class GameConstants
     
     public const char PlayerSymbol = '¶';
     public const char WallSymbol = '█';
+    public const char EmptyHandSymbol = '—';
     
     //ACTIONBOX
 
     public const int ActionBoxTop = 50;
-    public const int ActionBoxLeft = 47;
-    public const int ActionBoxRight = 125;
+    public const int ActionBoxLeft = 20;
+    public const int ActionBoxRight = 98;
     public const int ActionBoxBottom = 58;
     public const int ActionBoxWritingPointName = 51;
     public const int ActionBoxWritingPointDesc = ActionBoxWritingPointName + 3;
     public const int ActionBoxWritingPointPickup = ActionBoxWritingPointDesc + 3;
+    
+    //FIGHTBOX
+    public const int FightBoxTop = 50;
+    public const int FightBoxLeft = 102;
+    public const int FightBoxRight = 200;
+    public const int FightBoxBottom = 58;
+    public const int FightBoxWritingPointName = 51;
+    public const int FightBoxWritingPointDesc = FightBoxWritingPointName + 3;
+    public const int FightBoxWritingPointPickup = FightBoxWritingPointDesc + 3;
+    
+    // FIGHTBOX - FIGHT MODE
+
+    public const int FightBoxPlayerIconTop = (FightBoxTop + FightBoxBottom) / 2;
+    public const int FightBoxPlayerIconLeft = FightBoxLeft + 40;
+    public const int FightBoxPlayerLeftHand = FightBoxPlayerIconLeft - 2;
+    public const int FightBoxPlayerRightHand = FightBoxPlayerIconLeft + 2;
+
+    public const int FightBoxAttacksTop = FightBoxTop + 1;
+    public const int FightBoxAttacksLeft = FightBoxLeft + 5;
+
+    public const int FightBoxEnemyPositionTop = FightBoxPlayerIconTop;
+    public const int FightBoxEnemyPositionLeft = FightBoxPlayerIconLeft + 15;
+
+    public const int FightBoxEnemyVitalsTop = FightBoxTop + 3;
+    public const int FightBoxEnemyVitalsLeft = FightBoxRight - 20;
+    
+
     
     //VITALSBOX
     public const int VitalsBoxTop = 15;
@@ -96,7 +124,7 @@ public static class GameConstants
     // EQUIPMENTBOX
     public const int EqBoxTop = 15;
     public const int EqBoxLeft = 125;
-    public const int EqBoxRight = 155
+    public const int EqBoxRight = 170
         ;
     public const int EqBoxBottom = 30;
     public const int EqBoxWritingPointStartTop = EqBoxTop + 3;
@@ -108,7 +136,7 @@ public static class GameConstants
     
     public const int LeftHandBoxTop = 35;
     public const int LeftHandBoxLeft = 125;
-    public const int LeftHandBoxRight = 155
+    public const int LeftHandBoxRight = 170
         ;
     
     public const int LeftHandBoxBottom = 45;
@@ -121,7 +149,7 @@ public static class GameConstants
     public const int RightHandBoxTop = 35;
     public const int RightHandBoxLeft = 175;
     
-    public const int RightHandBoxRight = 205;
+    public const int RightHandBoxRight = 220;
     
     public const int RightHandBoxBottom = 45;
     public const int RightHandoxWritingPointStartTopName = RightHandBoxTop + 3;
@@ -150,7 +178,21 @@ public static class GameConstants
     //DungeonBuilding
 
     public const int RoomInsertAttempts = 20;
+    public const int CorridorGenerationAttempts = 20;
 
+    
+    // Base Vitals
 
+    public const int BaseDamage = 10;
+
+    public const int BaseLuck = 15;
+    
+    // Base for Enemies
+
+    public const int BaseEnemyArmor = 0;
+
+    public const int BaseEnemyDamage = 5;
+
+    public const int BaseEnemyHealth = 50;
     //VITALSBOX
 }

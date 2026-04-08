@@ -46,8 +46,8 @@ public class WealthBox : Box
     public void DisplayGoods()
     {
         List<string> goods = new List<string>();
-        goods.Add($"Gold: {_player.gold}");
-        goods.Add($"Coins: {_player.coins}");
+        goods.Add($"Gold: {_player.Gold}");
+        goods.Add($"Coins: {_player.Coins}");
         Console.SetCursorPosition(GameConstants.WealthBoxWritingPointStartLeft,
             GameConstants.WealthBoxWritingPointStartTop);
         for (int i = 0; i < goods.Count; i++)

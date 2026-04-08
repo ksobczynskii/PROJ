@@ -25,4 +25,9 @@ public class PlayerMovesBuilder : IPlayerMovesBuilder
         _pmBox.AddMove("← / → - Seek (Board)");
         _pmBox.AddMove("↑ / ↓ - Seek (Backpack)");
     }
+
+    public void AddEnemy()
+    {
+        _pmBox.AddMove("Enter - Fight Enemy");
+    }
 }

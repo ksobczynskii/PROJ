@@ -19,4 +19,5 @@ public class FrameObject : BoardObject
     }
     
     public override bool Pickupable => false;
+    public override bool Fightable => false;
 }

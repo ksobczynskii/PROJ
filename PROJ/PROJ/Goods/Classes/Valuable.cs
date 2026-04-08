@@ -10,5 +10,5 @@ public abstract class Valuable : BoardObject
     // }
     
     public override bool Blocker => false;
-
+    public override bool Fightable => false;
 }
