@@ -1,8 +1,21 @@
 {
   "version": 2,
-  "dgSpecHash": "eFTxXjYGXH4=",
+  "dgSpecHash": "MyhP+sm45ko=",
   "success": true,
   "projectFilePath": "/Users/kosteks/PROJ/PROJ/PROJ/PROJ/PROJ.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.configuration/9.0.0/microsoft.extensions.configuration.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.configuration.abstractions/9.0.0/microsoft.extensions.configuration.abstractions.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.configuration.binder/9.0.0/microsoft.extensions.configuration.binder.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.configuration.fileextensions/9.0.0/microsoft.extensions.configuration.fileextensions.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.configuration.json/9.0.0/microsoft.extensions.configuration.json.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.fileproviders.abstractions/9.0.0/microsoft.extensions.fileproviders.abstractions.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.fileproviders.physical/9.0.0/microsoft.extensions.fileproviders.physical.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.filesystemglobbing/9.0.0/microsoft.extensions.filesystemglobbing.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.extensions.primitives/9.0.0/microsoft.extensions.primitives.9.0.0.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.netcore.app.ref/9.0.15/microsoft.netcore.app.ref.9.0.15.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.15/microsoft.aspnetcore.app.ref.9.0.15.nupkg.sha512",
+    "/Users/kosteks/.nuget/packages/microsoft.netcore.app.host.osx-arm64/9.0.15/microsoft.netcore.app.host.osx-arm64.9.0.15.nupkg.sha512"
+  ],
   "logs": []
 }

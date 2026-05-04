@@ -340,7 +340,7 @@ public class Player
         EqBox.PointerInit();
         _board.DropItem(tool);
     }
-
+    
     public bool Dead()
     {
         return Health == 0;
@@ -350,4 +350,6 @@ public class Player
     {
         _vitalsBox.DisplayVitals();
     }
+    
+    public string Name { get; set; }
 }

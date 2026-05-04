@@ -2,15 +2,16 @@ using PROJ.Tools.Classes.Weapons.Abstract_Types;
 
 namespace PROJ.Tools.Classes.Weapons;
 
-public class Shiv : LightWeapon
+public class SmallWeapon : LightWeapon
 {
-    public Shiv(Player player) : base(player){}
-    public override char Visual => '‡';
+    public SmallWeapon(Player player, string name = "Shiv", char vis = '‡') : base(player, name, vis){}
+
+    // public override char Visual => '‡';
     public override int Space => 1;
     public override int Damage => 5;
     // public override int Range => 0;
     // public override float Cooldown => 1.0f;
-    public override string Name => "Shiv";
+    // public override string Name => "Shiv";
 
     public override void Use()
     {

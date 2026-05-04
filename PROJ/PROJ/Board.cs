@@ -2,6 +2,8 @@ using PROJ.Builder.Classes;
 using PROJ.Enemies;
 using PROJ.Fight;
 using PROJ.GameConstansts;
+using PROJ.Logging.Classes;
+using PROJ.Themes;
 using PROJ.Tools.Classes;
 
 namespace PROJ;
@@ -110,17 +112,27 @@ public class Board
     
     
     
-    public void Generate()
+    public void Generate(IDungeonThemeFactory? factory)
     {
         // if(_player)
+        
         PlayerMovesBuilder pmb = new PlayerMovesBuilder(_pmBox);
         DungeonBuilder builder = new DungeonBuilder(this, _player, pmb);
         // OnlyMazeGenerate(builder);
-        MixGenerate(builder);
-        // ManySmallRoomsWithLootGenerate(builder);
-        // CentralHallWithLootgenerate(builder);
-        // builder.CreateFilledDungeon();
-        builder.AddCentralHall(10,10);
+
+        if (factory == null)
+        {
+            MixGenerate(builder);
+            // ManySmallRoomsWithLootGenerate(builder);
+            // CentralHallWithLootgenerate(builder);
+            // builder.CreateFilledDungeon();
+            builder.AddCentralHall(10,10);
+        }
+        else
+        {
+            factory.Build(builder, _player);
+        }
+        
         Tiles = builder.GetDungeon();
     }
 
@@ -151,9 +163,11 @@ public class Board
             _currentlySeeked--;
     }
 
-    public void AddPlayer(Player player)
+    public void AddPlayer(Player player, string? playerName = null)
     {
         _player = player;
+        player.Name = playerName != null ? playerName : "Player 1";
+            
         player.Position[0] = 1;
         player.Position[1] = 1;
     }
@@ -164,12 +178,20 @@ public class Board
         int y = _player.Position[1];
         int newX = x + 1;
         int newY = y;
+        var logger = Logger.GetInstance;
+
 
         if (!CanMove(newX, newY))
+        {
+            logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
+
             return;
+        }
+            
 
         _player.Position[0] = newX;
         _player.Position[1] = newY;
+
         
         DrawAt(x,y, GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
@@ -183,13 +205,21 @@ public class Board
         int y = _player.Position[1];
         int newX = x - 1;
         int newY = y;
+        
+        var logger = Logger.GetInstance;
+
 
         if (!CanMove(newX, newY))
+        {
+            logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
             return;
+        }
+            
 
         _player.Position[0] = newX;
         _player.Position[1] = newY;
         DrawAt(x,y,GetVisualAt(x,y));
+        
 
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
@@ -202,12 +232,20 @@ public class Board
         int newX = x;
         int newY = y + 1;
 
+        var logger = Logger.GetInstance;
+
+
         if (!CanMove(newX, newY))
+        {
+            logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
             return;
+        }
 
 
         _player.Position[0] = newX;
         _player.Position[1] = newY;
+        
+        
         DrawAt(x,y,GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
@@ -220,11 +258,19 @@ public class Board
         int newX = x;
         int newY = y - 1;
 
+        var logger = Logger.GetInstance;
+
+
         if (!CanMove(newX, newY))
+        {
+            logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
             return;
+        }
 
         _player.Position[0] = newX;
         _player.Position[1] = newY;
+        
+        
         DrawAt(x,y,GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );

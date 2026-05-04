@@ -701,14 +701,17 @@ public class DungeonBuilder : IDungeonBuilder
         }
 
     }
-    public void AddItems(int count)
+    public void AddItems(int count, Func<Item>[]? items = null)
     {
-        var items = new Func<Item>[]
+        if(items==null)
         {
-            () => new Physician_s_Ledger(_player),
-            () => new PlagueMask(_player),
-            () => new Rosary(_player)
-        };
+            items = new Func<Item>[]
+            {
+                () => new MediumItem(_player),
+                () => new CoolItem(_player),
+                () => new SmallItem(_player)
+            };
+        }
         Random r = new Random();
         // _tiles[1,2] = items[r.Next(items.Length)]();
         for (int i = 0; i < count; i++)
@@ -717,16 +720,24 @@ public class DungeonBuilder : IDungeonBuilder
         }
     }
 
-    public void AddWeapons(int count)
+    public void AddArtifact(Tool t)
+    {
+        AddToMap(t);
+    }
+
+    public void AddWeapons(int count, Func<Weapon>[]? weapons = null)
     {
         _pmb.AddPickup();
-        var weapons = new Func<Weapon>[]
+        if (weapons == null)
         {
-            () => new Shiv(_player),
-            () => new SailorsCutlass(_player),
-            () => new BoatHook(_player),
-            () => new Cross(_player)
-        };
+            weapons = new Func<Weapon>[]
+            {
+                () => new SmallWeapon(_player, name: "Paluch", vis: 'E'),
+                () => new MediumWeapon(_player),
+                () => new TwoHandedWeapon(_player),
+                () => new SmallMagicWeapon(_player)
+            };
+        }
         Random r = new Random();
         for (int i = 0; i < count; i++)
         {
@@ -746,15 +757,18 @@ public class DungeonBuilder : IDungeonBuilder
         }
     }
 
-    public void AddEnemies(int count)
+    public void AddEnemies(int count, Func<Enemy>[]? enemies = null)
     {
         _pmb.AddEnemy(); // TODO Add Enemy
-        var enemies = new Func<Enemy>[]
+        if (enemies == null)
         {
-            () => new Infected(),
-            () => new Guard(),
-            () => new Rat(),
-        };
+            enemies = new Func<Enemy>[]
+            {
+                () => new MediumEnemy(),
+                () => new BigEnemy(),
+                () => new SmallEnemy(),
+            };
+        }
         Random r = new Random();
         for (int i = 0; i < count; i++)
         {

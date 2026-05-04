@@ -1,12 +1,12 @@
 namespace PROJ.Tools.Classes.Items;
 
-public class Rosary : Item
+public class SmallItem : Item
 {
-    public Rosary(Player player) : base(player){}
+    public SmallItem(Player player, string name = "Rosary", char vis = '✟') : base(player, name, vis){}
     
-    public override char Visual => '✟';
+    // public override char Visual => '✟';
     public override int Space => 1;
-    public override string Name => "Rosary";
+    // public override string Name => "Rosary";
     
     public override void Use()
     {

@@ -1,6 +1,7 @@
 using PROJ.Fight;
 using PROJ.Fight.Interfaces;
 using PROJ.GameConstansts;
+using PROJ.Logging.Classes;
 
 namespace PROJ.Tools.Classes;
 
@@ -9,12 +10,20 @@ public abstract class Tool :  BoardObject, ITool, IUsable // TODO use NuGet
     public abstract int Space { get; }
     protected Player Owner;
 
+    protected string name;
+    protected char vis;
+
     public override bool Fightable => false;
+    
+    public override string Name =>  name;
+    public override char Visual => vis;
 
 
-    public Tool(Player player)
+    public Tool(Player player, string name = "unnamed", char vis = 'X')
     {
         Owner = player;
+        this.name = name;
+        this.vis = vis;
     }
 
     public abstract void Use();
@@ -22,21 +31,25 @@ public abstract class Tool :  BoardObject, ITool, IUsable // TODO use NuGet
 
     public override void PickUp(Player player)
     {
+        var logger = Logger.GetInstance;
         if (!Pickupable)
         {
             Owner.ErrSpace.DisplayErr("Can't Pick up that object yet!");
+            logger.Log($"{player.Name} Tried to Pick up {Name} with no success");
             return;
         }
         if (ObjBoard != null)
         {
             if (player.PlayerBackpack.TryAddItem(this))
             {
+                logger.Log($" {player.Name} Picked up {Name}");
                 ObjBoard.RemoveFromMap(X,Y);
                 player.EqBox.DisplayItems();
                 ObjBoard.RefreshActionBox(X,Y);
             }
             else
             {
+                logger.Log($"{player.Name} Tried to Pick up {Name} with no success");
                 Owner.ErrSpace.DisplayErr("Item too large!");
             }
         }

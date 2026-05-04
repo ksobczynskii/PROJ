@@ -2,15 +2,17 @@ using PROJ.Tools.Classes.Weapons.Abstract_Types;
 
 namespace PROJ.Tools.Classes.Weapons;
 
-public class Cross : MagicWeapon
+public class SmallMagicWeapon : MagicWeapon
 {
-    public Cross(Player player) : base(player){}
-    public override char Visual => '☦';
+    public SmallMagicWeapon(Player player, string name="Cross", char vis='☦') : base(player, name, vis)
+    {
+        
+    }
+
     public override int Space => 1;
     public override int Damage => 5;
     // public override int Range => 0;
     // public override float Cooldown => 1.0f;
-    public override string Name => "Cross";
 
     public override void Use()
     {

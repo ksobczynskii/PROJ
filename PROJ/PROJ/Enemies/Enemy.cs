@@ -8,6 +8,9 @@ public abstract class Enemy : BoardObject
     protected int _armor;
     protected int _health;
     protected int _damage;
+
+    protected char vis;
+    protected string name;
     public override bool Blocker => true;
     public override bool Pickupable => false;
     public override void PickUp(Player player) // to do zmiany TODO
@@ -15,12 +18,21 @@ public abstract class Enemy : BoardObject
         
     }
 
-    public Enemy(int armor = GameConstants.BaseEnemyArmor, int health = GameConstants.BaseEnemyHealth, int damage = GameConstants.BaseEnemyDamage)
+    public Enemy(int armor = GameConstants.BaseEnemyArmor, int health = GameConstants.BaseEnemyHealth, int damage = GameConstants.BaseEnemyDamage,
+        char vis = 'X', string name = "unnamed"
+    )
     {
         _armor = armor;
         _health = health;
         _damage = damage;
+        this.vis = vis;
+        this.name = name;
     }
+
+    public override string Name => name;
+
+    public override char Visual => vis;
+
 
     public virtual int Armor => _armor;
 

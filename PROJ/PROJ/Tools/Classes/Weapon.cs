@@ -11,7 +11,7 @@ public abstract class Weapon : Tool
     // public abstract int Range { get; }
 
 
-    public Weapon(Player player) : base(player){}
+    public Weapon(Player player, string name = "unnamed", char vis = 'X') : base(player, name, vis){}
 
     
     public abstract bool TwoHanded(); // TODO decyzja - size i twohandedness to to samo czy nie

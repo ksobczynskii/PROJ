@@ -49,7 +49,7 @@ public static class GameConstants
     /// <summary>
     /// Ta zmienna mówi o tym ile pikseli od lewej ściany ma napis znad planszy
     /// </summary>
-    public const int SignStartLeft = 47;
+    public const int SignStartLeft = 10;
 
     
     /// <summary>
@@ -172,6 +172,17 @@ public static class GameConstants
     public const int PlayerMovesBoxBottom = 30;
     public const int PlayerMovesBoxWritingPointStartLeft = PlayerMovesBoxLeft + 3;
     public const int PlayerMovesBoxWritingPointStartTop = PlayerMovesBoxTop + 3;
+    
+    //LoggerBox
+    
+    public const int LoggerBoxLeft = 100;
+    
+    public const int LoggerBoxRight = 200;
+    public const int LoggerBoxTop = 5;
+    public const int LoggerBoxBottom = 13;
+    public const int LoggerBoxWritingPointStartLeft = LoggerBoxLeft + 1;
+    public const int LoggerBoxWritingPointStartTop = LoggerBoxTop + 1;
+    
     
     
     

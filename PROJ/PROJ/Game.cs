@@ -1,5 +1,7 @@
+using PROJ.Configuration;
 using PROJ.Handlers;
 using PROJ.Handlers.Enums;
+using PROJ.Logging.Classes;
 
 namespace PROJ;
 
@@ -47,11 +49,17 @@ public class Game
 
     public void Start()
     {
+        var config = Configurator.Instance.Configure();
         Console.Clear();
+        var logger = Logger.GetInstance;
+
+        var themeSettings = Configurator.Instance.ConfigureTheme();
+        
+        
 
         Console.CursorVisible = false;
-        _board.AddPlayer(_player);
-        _board.Generate();
+        _board.AddPlayer(_player, config.PlayerName);
+        _board.Generate(themeSettings);
         
         _board.Display();
         // _board.GenerateItems();
@@ -83,13 +91,15 @@ public class Game
         var puh = new PickUpHandler(_player);
         var bmh = new BackpackModeHandler(_player);
         var fh = new FightHandler(_board, _errSpace);
+        var lm = new LoggerMode(_board);
         var dmh = new DisallowedMoveHandler(_errSpace);
         
         fh.SetNext(sh);
         sh.SetNext(eh);
         eh.SetNext(mh);
         mh.SetNext(puh);
-        puh.SetNext(bmh);
+        puh.SetNext(lm);
+        lm.SetNext(bmh);
         bmh.SetNext(dmh);
         
         while (true)

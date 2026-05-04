@@ -5,7 +5,7 @@ namespace PROJ.Tools.Classes.Weapons.Abstract_Types;
 
 public abstract class HeavyWeapon : Weapon
 {
-    public HeavyWeapon(Player player) : base(player)
+    public HeavyWeapon(Player player, string name = "unnamed", char vis = 'X') : base(player, name, vis)
     {
     }
 

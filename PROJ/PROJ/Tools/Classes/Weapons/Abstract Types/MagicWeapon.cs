@@ -5,7 +5,7 @@ namespace PROJ.Tools.Classes.Weapons.Abstract_Types;
 
 public abstract class MagicWeapon : Weapon
 {
-    public MagicWeapon(Player player) : base(player)
+    public MagicWeapon(Player player, string name = "unnamed", char vis = 'X') : base(player, name, vis)
     {
     }
 

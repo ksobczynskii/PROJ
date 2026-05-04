@@ -4,6 +4,7 @@ using PROJ.Fight.Handlers;
 using PROJ.Fight.Visitors;
 using PROJ.Handlers;
 using PROJ.Handlers.Enums;
+using PROJ.Logging.Classes;
 using PROJ.Tools.Classes;
 using PROJ.Tools.Classes.Weapons.Abstract_Types;
 
@@ -78,7 +79,7 @@ public class FightMenu
         }
 
         AttackVisitor? visitor = null;
-        if (_attack == 1)
+        if (_attack == 1) // TODO na enuma
         {
             visitor = new NormalAttackVisitor(_player);
         }
@@ -116,20 +117,27 @@ public class FightMenu
 
         var result = w.Accept(visitor);
         Console.SetCursorPosition(180, 5);
-        Console.WriteLine($"Got result of attack: damage - {result.DamageToEnemy}, defense - {result.PlayerDefense}");
-        Console.WriteLine($"Attack = {_attack}, Hand = {_hand}");
+        var logger = Logger.GetInstance;
+        // Console.WriteLine($"Got result of attack: damage - {result.DamageToEnemy}, defense - {result.PlayerDefense}");
+        // Console.WriteLine($"Attack = {_attack}, Hand = {_hand}");
         _enemy.Hit(result.DamageToEnemy);
+        
+        logger.Log($"{_player.Name} Hit {_enemy.Name} with {result.DamageToEnemy} damage");
         _box.UpdateEnemyVitals(_enemy);
         Thread.Sleep(50);
         if (_enemy.Dead())
         {
+            logger.Log($"{_player.Name} Killed {_enemy.Name}");
             _box.DeadEnemyDisplay(_enemy);
             return;
         }
         _enemy.Attack(_player, result.PlayerDefense);
+        logger.Log($"{_enemy.Name} Attacked {_player.Name} with {int.Min(_enemy.Damage - result.PlayerDefense,0)} damage");
+
         Thread.Sleep(50);
         if (_player.Dead())
         {
+            logger.Log($"{_enemy.Name} Killed {_player.Name}");
             _game.EndBad();
         }
 

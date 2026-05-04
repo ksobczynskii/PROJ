@@ -7,7 +7,7 @@ public abstract class WeaponDecorator : Weapon
 {
     protected Weapon _inner;
 
-    public WeaponDecorator(Player player, Weapon inner) : base(player)
+    public WeaponDecorator(Player player, Weapon inner, string name, char vis) : base(player, name, vis)
     {
         _inner = inner;
     }
