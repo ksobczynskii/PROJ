@@ -13,4 +13,9 @@ public abstract class MagicWeapon : Weapon
     {
         return visitor.VisitMagicWeapon(this);
     }
+    public override void SendPickupMessage()
+    {
+        var messageBus = PickUpSoundBus.GetInstance;
+        messageBus.Send(Y, X, 6);
+    }
 }

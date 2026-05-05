@@ -21,34 +21,37 @@ public class LoggerBox : Box
 
     public override void DisplayFrame()
     {
-        // ┌ ┐ └ ┘ ─ │
-        Console.SetCursorPosition(GameConstants.LoggerBoxLeft, GameConstants.LoggerBoxTop);
-        Console.Write('┌');
-        Console.SetCursorPosition(GameConstants.LoggerBoxRight, GameConstants.LoggerBoxTop);
-        Console.Write('┐');
-        Console.SetCursorPosition(GameConstants.LoggerBoxLeft, GameConstants.LoggerBoxBottom);
-        Console.Write('└');
-        Console.SetCursorPosition(GameConstants.LoggerBoxRight, GameConstants.LoggerBoxBottom);
-        Console.Write('┘');
-
-        for (int i = 1; i < GameConstants.LoggerBoxBottom - GameConstants.LoggerBoxTop; i++)
+        ConsoleRender.Run(() =>
         {
-            Console.SetCursorPosition(GameConstants.LoggerBoxLeft, GameConstants.LoggerBoxTop + i);
-            Console.Write('│');
-            Console.SetCursorPosition(GameConstants.LoggerBoxRight, GameConstants.LoggerBoxTop + i);
-            Console.Write('│');
-        }
-        for (int i = 1; i < GameConstants.LoggerBoxRight - GameConstants.LoggerBoxLeft ; i++)
-        {
-            Console.SetCursorPosition(GameConstants.LoggerBoxLeft + i, GameConstants.LoggerBoxTop);
-            Console.Write('─');
-            Console.SetCursorPosition(GameConstants.LoggerBoxLeft + i, GameConstants.LoggerBoxBottom);
-            Console.Write('─');
-        }
+            // ┌ ┐ └ ┘ ─ │
+            Console.SetCursorPosition(GameConstants.LoggerBoxLeft, GameConstants.LoggerBoxTop);
+            Console.Write('┌');
+            Console.SetCursorPosition(GameConstants.LoggerBoxRight, GameConstants.LoggerBoxTop);
+            Console.Write('┐');
+            Console.SetCursorPosition(GameConstants.LoggerBoxLeft, GameConstants.LoggerBoxBottom);
+            Console.Write('└');
+            Console.SetCursorPosition(GameConstants.LoggerBoxRight, GameConstants.LoggerBoxBottom);
+            Console.Write('┘');
 
-        string tmp = " Log ";
-        Console.SetCursorPosition((GameConstants.LoggerBoxRight + GameConstants.LoggerBoxLeft) / 2 - tmp.Length/2, GameConstants.LoggerBoxTop);
-        Console.Write(tmp);
+            for (int i = 1; i < GameConstants.LoggerBoxBottom - GameConstants.LoggerBoxTop; i++)
+            {
+                Console.SetCursorPosition(GameConstants.LoggerBoxLeft, GameConstants.LoggerBoxTop + i);
+                Console.Write('│');
+                Console.SetCursorPosition(GameConstants.LoggerBoxRight, GameConstants.LoggerBoxTop + i);
+                Console.Write('│');
+            }
+            for (int i = 1; i < GameConstants.LoggerBoxRight - GameConstants.LoggerBoxLeft ; i++)
+            {
+                Console.SetCursorPosition(GameConstants.LoggerBoxLeft + i, GameConstants.LoggerBoxTop);
+                Console.Write('─');
+                Console.SetCursorPosition(GameConstants.LoggerBoxLeft + i, GameConstants.LoggerBoxBottom);
+                Console.Write('─');
+            }
+
+            string tmp = " Log ";
+            Console.SetCursorPosition((GameConstants.LoggerBoxRight + GameConstants.LoggerBoxLeft) / 2 - tmp.Length/2, GameConstants.LoggerBoxTop);
+            Console.Write(tmp);
+        });
     }
 
     public void AddLog(string move)
@@ -83,14 +86,17 @@ public class LoggerBox : Box
 
     private void Render()
     {
-        ClearVisibleArea();
-
-        int visibleCount = Math.Min(VisibleLines, _logs.Count - _firstVisibleIndex);
-        for (int i = 0; i < visibleCount; i++)
+        ConsoleRender.Run(() =>
         {
-            Console.SetCursorPosition(GameConstants.LoggerBoxWritingPointStartLeft, FirstLine + i);
-            Console.Write(TrimToVisibleWidth(_logs[_firstVisibleIndex + i]));
-        }
+            ClearVisibleArea();
+
+            int visibleCount = Math.Min(VisibleLines, _logs.Count - _firstVisibleIndex);
+            for (int i = 0; i < visibleCount; i++)
+            {
+                Console.SetCursorPosition(GameConstants.LoggerBoxWritingPointStartLeft, FirstLine + i);
+                Console.Write(TrimToVisibleWidth(_logs[_firstVisibleIndex + i]));
+            }
+        });
     }
 
     private void ClearVisibleArea()

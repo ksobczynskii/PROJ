@@ -8,13 +8,13 @@ namespace PROJ.Themes;
 
 public class HospitalThemeFactory : IDungeonThemeFactory
 {
-    public Func<Enemy>[] CreateEnemyPool()
+    public Func<Enemy>[] CreateEnemyPool(Board board)
     {
         return new Func<Enemy>[]
         {
-            () => new SmallEnemy(name: "Nurse", vis:'✚'),
-            () => new MediumEnemy(name: "Doctor", vis:'⚕'),
-            () => new BigEnemy(name: "Priest", vis: '☬')
+            () => new SmallEnemy(name: "Nurse", vis:'✚',b:board ),
+            () => new MediumEnemy(name: "Doctor", vis:'⚕',b:board ),
+            () => new BigEnemy(name: "Priest", vis: '☬',b:board ),
         };
     }
 
@@ -38,13 +38,13 @@ public class HospitalThemeFactory : IDungeonThemeFactory
         };
     }
 
-    public void Build(DungeonBuilder db, Player p)
+    public void Build(DungeonBuilder db, Player p,  Board board)
     {
         db.CreateEmptyDungeon();
         db.AddItems(5, CreateItemPool(p)); // TODO kolorki zmien jak motyw
         db.AddWeapons(10, CreateWeaponPool(p));
         db.AddArtifact(new SmallItem(p,"Unfound Triage Tag", vis:'*' ));
-        db.AddEnemies(30, CreateEnemyPool());
+        db.AddEnemies(30, CreateEnemyPool(board));
         db.AddCentralHall(10,20);
         db.AddRooms(4);
         db.AddCorridors(10);

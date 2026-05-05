@@ -117,11 +117,12 @@ public class Game
         Environment.Exit(0);
     }
 
-    public void EndBad()
+    public void EndBad() // TODO Lepiej to zrob
     {
         var endScreen = new EndScreen();
         endScreen.EndGame();
         Thread.Sleep(3000);
+        Console.Clear();
         Environment.Exit(0);
     }
 }

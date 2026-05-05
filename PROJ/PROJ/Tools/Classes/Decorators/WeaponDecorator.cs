@@ -40,4 +40,11 @@ public abstract class WeaponDecorator : Weapon
     {
         return _inner.Accept(visitor);
     }
+    public override void SendPickupMessage()
+    {
+        _inner.X = X;
+        _inner.Y = Y;
+        _inner.ObjBoard = ObjBoard;
+        _inner.SendPickupMessage();
+    }
 }

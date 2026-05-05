@@ -8,13 +8,13 @@ namespace PROJ.Themes;
 
 public class SeaThemeFactory : IDungeonThemeFactory
 {
-    public Func<Enemy>[] CreateEnemyPool()
+    public Func<Enemy>[] CreateEnemyPool(Board board)
     {
         return new Func<Enemy>[]
         {
-            () => new MediumEnemy(name: "Shark", vis: 'ᗦ'),
-            () => new BigEnemy(name: "Whale", vis: 'ᘯ'),
-            () => new SmallEnemy(name: "Sailor", vis:'&')
+            () => new MediumEnemy(name: "Shark", vis: 'ᗦ',b:board),
+            () => new BigEnemy(name: "Whale", vis: 'ᘯ',b:board),
+            () => new SmallEnemy(name: "Sailor", vis:'&',b:board),
         };
     }
 
@@ -38,13 +38,13 @@ public class SeaThemeFactory : IDungeonThemeFactory
         };
     }
 
-    public void Build(DungeonBuilder db, Player p)
+    public void Build(DungeonBuilder db, Player p, Board board)
     {
         db.CreateEmptyDungeon();
         db.AddItems(20, CreateItemPool(p)); // TODO kolorki zmien jak motyw
         db.AddWeapons(20, CreateWeaponPool(p));
         db.AddArtifact(new SmallMagicWeapon(p, "Magic Compass", '*'));
-        db.AddEnemies(5, CreateEnemyPool());
+        db.AddEnemies(5, CreateEnemyPool(board));
         // d;
         // db.AddCorridors(20);
     }

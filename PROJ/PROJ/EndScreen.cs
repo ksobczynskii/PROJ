@@ -15,7 +15,7 @@ public class EndScreen
         string s1 = "Journal saved to " + logger.filePath;
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write(s);
-        Console.SetCursorPosition(Math.Max(0, (Console.WindowWidth - s1.Length) / 2), Console.CursorTop);
+        Console.SetCursorPosition(Math.Max(0, (Console.WindowWidth - s1.Length) / 2), Console.CursorTop + 5);
         Console.WriteLine(s1);
     }
 }

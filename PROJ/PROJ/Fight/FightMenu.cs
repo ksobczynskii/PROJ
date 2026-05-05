@@ -129,10 +129,11 @@ public class FightMenu
         {
             logger.Log($"{_player.Name} Killed {_enemy.Name}");
             _box.DeadEnemyDisplay(_enemy);
+            _enemy.DeleteYourself();
             return;
         }
         _enemy.Attack(_player, result.PlayerDefense);
-        logger.Log($"{_enemy.Name} Attacked {_player.Name} with {int.Min(_enemy.Damage - result.PlayerDefense,0)} damage");
+        logger.Log($"{_enemy.Name} Attacked {_player.Name} with {int.Max(_enemy.Damage - result.PlayerDefense,0)} damage");
 
         Thread.Sleep(50);
         if (_player.Dead())

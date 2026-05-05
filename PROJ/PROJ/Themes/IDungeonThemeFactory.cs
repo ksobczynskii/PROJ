@@ -11,6 +11,6 @@ public interface IDungeonThemeFactory
 
     Func<Item>[] CreateItemPool(Player p);
     Func<Weapon>[] CreateWeaponPool(Player p);
-    Func<Enemy>[] CreateEnemyPool();
-    void Build(DungeonBuilder db, Player p);
+    Func<Enemy>[] CreateEnemyPool(Board b);
+    void Build(DungeonBuilder db, Player p, Board board);
 }

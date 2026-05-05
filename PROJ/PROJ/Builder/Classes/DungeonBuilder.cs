@@ -1,4 +1,6 @@
 using PROJ.Enemies;
+using PROJ.Enemies.Death_Reaction_Strategies;
+using PROJ.Enemies.Species;
 using PROJ.GameConstansts;
 using PROJ.Tools.Classes;
 using PROJ.Tools.Classes.Decorators;
@@ -760,13 +762,15 @@ public class DungeonBuilder : IDungeonBuilder
     public void AddEnemies(int count, Func<Enemy>[]? enemies = null)
     {
         _pmb.AddEnemy(); // TODO Add Enemy
+        SpeciesGroup human = new SpeciesGroup("Human", new AngryStrategy());
+        SpeciesGroup animal = new SpeciesGroup("Animal", new ScaredStrategy());
         if (enemies == null)
         {
             enemies = new Func<Enemy>[]
             {
-                () => new MediumEnemy(),
-                () => new BigEnemy(),
-                () => new SmallEnemy(),
+                () => new MediumEnemy(group: human, b: _board),
+                () => new BigEnemy(group:  human,b: _board),
+                () => new SmallEnemy(group:animal,b: _board),
             };
         }
         Random r = new Random();

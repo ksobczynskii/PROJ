@@ -13,4 +13,10 @@ public abstract class HeavyWeapon : Weapon
     {
         return visitor.VisitHeavyWeapon(this);
     }
+
+    public override void SendPickupMessage()
+    {
+        var messageBus = PickUpSoundBus.GetInstance;
+        messageBus.Send(Y, X, 10);
+    }
 }

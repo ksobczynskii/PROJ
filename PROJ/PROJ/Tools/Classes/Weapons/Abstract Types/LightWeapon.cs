@@ -13,4 +13,9 @@ public abstract class LightWeapon : Weapon
     {
         return visitor.VisitLightWeapon(this);
     }
+    public override void SendPickupMessage()
+    {
+        var messageBus = PickUpSoundBus.GetInstance;
+        messageBus.Send(Y, X, 3);
+    }
 }

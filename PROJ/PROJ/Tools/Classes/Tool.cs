@@ -53,6 +53,12 @@ public abstract class Tool :  BoardObject, ITool, IUsable // TODO use NuGet
                 Owner.ErrSpace.DisplayErr("Item too large!");
             }
         }
+        SendPickupMessage();
+    }
+
+    public virtual void SendPickupMessage()
+    {
+        
     }
     public virtual int GetStrength => 0;
 

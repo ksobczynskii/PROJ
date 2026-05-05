@@ -51,21 +51,30 @@ public class Tile
 
     public char GetVisual()
     {
-        try
-        {
-            return Content![0].Visual;
-        }
-        catch (NullReferenceException)
-        {
+        if (Content == null || Objects == 0)
             return ' ';
-        }
+
+        var enemy = TryGetEnemy();
+        if (enemy != null)
+            return enemy.Visual;
+
+        return Content[0].Visual;
     }
 
     public Enemy? TryGetEnemy()
     {
-        if (Objects > 0 && Content[0].Fightable)
-            return (Enemy)Content[0];
+        if (Content == null)
+            return null;
+
+        foreach (var obj in Content)
+        {
+            if (obj is Enemy enemy)
+                return enemy;
+        }
+
         return null;
     }
+    
+    
 }
     

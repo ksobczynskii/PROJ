@@ -27,6 +27,8 @@ public class Board
     private FightMenu _menu;
 
     private Game _game;
+
+    private List<Enemy> enemies;
     
 
 
@@ -50,10 +52,14 @@ public class Board
         return ' ';
     }
 
-    private void DrawAt(int x, int y, char symbol)
+    private void DrawAt(int x, int y, char symbol, ConsoleColor? color = null)
     {
-        Console.SetCursorPosition(GameConstants.BoardLeft + x, GameConstants.BoardTop + y);
-        Console.Write(symbol);
+        ConsoleRender.WriteAt(GameConstants.BoardLeft + x, GameConstants.BoardTop + y, symbol, color);
+    }
+
+    private void DrawTile(int row, int column, ConsoleColor? color = null)
+    {
+        DrawAt(column, row, GetVisualAt(column, row), color);
     }
 
     public void RemoveFromMap(int x, int y)
@@ -130,10 +136,28 @@ public class Board
         }
         else
         {
-            factory.Build(builder, _player);
+            factory.Build(builder, _player, this);
         }
-        
+        PickUpSoundBus.GetInstance.Init(this);
+
         Tiles = builder.GetDungeon();
+        GetEnemies(); // TODO Zmien bo dosc bolesne ale nie chce zmieniac Tiles. 
+        // var logger = Logger.GetInstance;
+        // logger.Log("Generated enemies");
+    }
+
+    private void GetEnemies()
+    {
+        enemies = new();
+        foreach (var tile in Tiles)
+        {
+            var x = tile.TryGetEnemy();
+            if (x == null)
+                continue;
+            var logger = Logger.GetInstance;
+            logger.Log($"- {x} - {tile.Content[0].Name}");
+            enemies.Add(x);
+        }
     }
 
     public BoardObject? GetCurrentlySeeked()
@@ -184,7 +208,7 @@ public class Board
         if (!CanMove(newX, newY))
         {
             logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
-
+            EnemiesTurn();
             return;
         }
             
@@ -196,6 +220,7 @@ public class Board
         DrawAt(x,y, GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        EnemiesTurn();
         _fightBox.AfterMoveAssesment(GetNearestEnemy());
 
     }
@@ -212,6 +237,7 @@ public class Board
         if (!CanMove(newX, newY))
         {
             logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
+            EnemiesTurn();
             return;
         }
             
@@ -223,6 +249,7 @@ public class Board
 
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        EnemiesTurn();
         _fightBox.AfterMoveAssesment(GetNearestEnemy());
     }
     public void MoveDown()
@@ -238,6 +265,7 @@ public class Board
         if (!CanMove(newX, newY))
         {
             logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
+            EnemiesTurn();
             return;
         }
 
@@ -249,6 +277,7 @@ public class Board
         DrawAt(x,y,GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        EnemiesTurn();
         _fightBox.AfterMoveAssesment(GetNearestEnemy());
     }
     public void MoveUp()
@@ -264,6 +293,7 @@ public class Board
         if (!CanMove(newX, newY))
         {
             logger.Log($"- {_player.Name} Tried To Walk into {Tiles[newY, newX].Content[0].Name} at {newX}, {newY}");
+            EnemiesTurn();
             return;
         }
 
@@ -274,6 +304,7 @@ public class Board
         DrawAt(x,y,GetVisualAt(x,y));
         DrawAt(newX,newY,GetVisualAt(newX, newY));
         _actionBox.AfterMoveAsessment(Tiles[_player.Position[1], _player.Position[0]].Content,Tiles[_player.Position[1], _player.Position[0]].Objects );
+        EnemiesTurn();
         _fightBox.AfterMoveAssesment(GetNearestEnemy());
     }
     public void Display()
@@ -431,6 +462,140 @@ public class Board
             return;
         }
         FightMode = false;
+    }
+
+    private void BlinkTile(int row, int column, ConsoleColor color, int durationMs, int blinkIntervalMs)
+    {
+        if (row < 0 || row >= Tiles.GetLength(0) || column < 0 || column >= Tiles.GetLength(1))
+            return;
+
+        _ = Task.Run(async () =>
+        {
+            int iterations = durationMs / blinkIntervalMs;
+
+            for (int i = 0; i < iterations; i++)
+            {
+                DrawTile(row, column, i % 2 == 0 ? color : null);
+                await Task.Delay(blinkIntervalMs);
+            }
+
+            DrawTile(row, column);
+        });
+    }
+
+    public void Blink(int row, int column, ConsoleColor color)
+    {
+        BlinkTile(row, column, color, 3000, 250);
+    }
+
+    public void SoundBlink(int x, int y, ConsoleColor color)
+    {
+        if (y < 0 || y >= Tiles.GetLength(0) || x < 0 || x >= Tiles.GetLength(1))
+            return;
+
+        _ = Task.Run(async () =>
+        {
+            const int durationMs = 500;
+            const int blinkIntervalMs = 125;
+            int iterations = durationMs / blinkIntervalMs;
+            bool isEmptyTile = Tiles[y, x].IsEmpty;
+
+            for (int i = 0; i < iterations; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    if (isEmptyTile && !(_player.Position[0] == x && _player.Position[1] == y))
+                        ConsoleRender.WriteAt(GameConstants.BoardLeft + x, GameConstants.BoardTop + y, ' ', backgroundColor: color);
+                    else
+                        DrawAt(x, y, GetVisualAt(x, y), color);
+                }
+                else
+                {
+                    DrawAt(x, y, GetVisualAt(x, y));
+                }
+
+                await Task.Delay(blinkIntervalMs);
+            }
+
+            DrawAt(x, y, GetVisualAt(x, y));
+        });
+    }
+
+    private void EnemyMove(Enemy e)
+    {
+        Random rnd = new Random();
+        int x = rnd.Next(0, 100);
+        if (x < 33)
+            return;
+        x = rnd.Next(0, 4);
+        switch (x)
+        {
+            case 0:
+            {
+                if (e.X == 0 || !Tiles[e.X - 1, e.Y].IsEmpty)
+                    return;
+                int oldRow = e.X;
+                int oldColumn = e.Y;
+                Tiles[oldRow, oldColumn].Reset();
+                e.X--;
+                Tiles[e.X, e.Y].AddObj(e);
+                DrawAt(oldColumn, oldRow, GetVisualAt(oldColumn, oldRow));
+                DrawAt(e.Y, e.X, GetVisualAt(e.Y, e.X));
+                break;
+            }
+            case 1:
+            {
+                if (e.Y == GameConstants.Width - 1 || !Tiles[e.X, e.Y + 1].IsEmpty)
+                    return;
+                int oldRow = e.X;
+                int oldColumn = e.Y;
+                Tiles[oldRow, oldColumn].Reset();
+                e.Y++;
+                Tiles[e.X, e.Y].AddObj(e);
+                DrawAt(oldColumn, oldRow, GetVisualAt(oldColumn, oldRow));
+                DrawAt(e.Y, e.X, GetVisualAt(e.Y, e.X));
+                break;
+            }
+            case 2:
+            {
+                if (e.X == GameConstants.Height - 1 || !Tiles[e.X + 1, e.Y].IsEmpty)
+                    return;
+                int oldRow = e.X;
+                int oldColumn = e.Y;
+                Tiles[oldRow, oldColumn].Reset();
+                e.X++;
+                Tiles[e.X, e.Y].AddObj(e);
+                DrawAt(oldColumn, oldRow, GetVisualAt(oldColumn, oldRow));
+                DrawAt(e.Y, e.X, GetVisualAt(e.Y, e.X));
+                break;
+            }
+            case 3:
+            {
+                if (e.Y == 0 || !Tiles[e.X, e.Y - 1].IsEmpty)
+                    return;
+                int oldRow = e.X;
+                int oldColumn = e.Y;
+                Tiles[oldRow, oldColumn].Reset();
+                e.Y--;
+                Tiles[e.X, e.Y].AddObj(e);
+                DrawAt(oldColumn, oldRow, GetVisualAt(oldColumn, oldRow));
+                DrawAt(e.Y, e.X, GetVisualAt(e.Y, e.X));
+                break;
+            }
+        }
+
+    }
+    private void EnemiesTurn()
+    {
+        foreach (var enemy in enemies)
+        {
+            EnemyMove(enemy);
+        }
+    }
+
+    public void DeleteEnemy(Enemy e)
+    {
+        enemies.Remove(e);
     }
     
     

@@ -1,8 +1,10 @@
+using PROJ.Enemies.Species;
+
 namespace PROJ.Enemies;
 
 public class SmallEnemy : Enemy
 {
-    public SmallEnemy(int health = 30, int armor = 5, int damage = 15,string name = "Rat", char vis = '~') : base(health, armor, damage, vis, name)
+    public SmallEnemy(Board b,int health = 30, int armor = 5, int damage = 15,string name = "Rat", char vis = '~', SpeciesGroup? group = null) : base(b,health, armor, damage, vis, name, group)
     {
     }
 

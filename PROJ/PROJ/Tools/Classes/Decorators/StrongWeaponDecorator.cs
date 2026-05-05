@@ -8,4 +8,6 @@ public class StrongWeaponDecorator : WeaponDecorator
     public StrongWeaponDecorator(Player player, Weapon weapon, string name="unnamed", char vis='X') : base(player, weapon, name, vis)
     {
     }
+
+    
 }
