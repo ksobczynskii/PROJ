@@ -1,7 +1,6 @@
+using PROJ.Builder.Classes;
 using PROJ.Configuration;
 using PROJ.Handlers;
-using PROJ.Handlers.Enums;
-using PROJ.Logging.Classes;
 
 namespace PROJ;
 
@@ -18,8 +17,11 @@ public class Game
     private LeftHandBox _leftHandBox;
     private RightHandBox _rightHandBox;
     private AboveActionErrorSpace _errSpace;
+    private AboveFightErrorSpace _fightErrSpace;
     private PlayerMovesBox _pmBox;
     private FightBox _fightBox;
+    private GameController _controller;
+    private readonly GameWorldBootstrapper _worldBootstrapper = new();
 
     
     
@@ -28,41 +30,43 @@ public class Game
         _actionBox = new ActionBox();
         _fightBox = new FightBox();
         _pmBox = new PlayerMovesBox();
-        _board = new Board(_actionBox, _pmBox, _fightBox, this);
-        _player = _board.GetPlayer;
+        _board = new Board();
+        _player = new Player();
+        _player.AssignBoard(_board);
 
-        _vitalsBox = _player.GetVitalsBox;
+        _vitalsBox = new VitalsBox(_player);
         _wealthBox = new WealthBox(_player);
         _eqBox = new EquipmentBox(_player);
         _leftHandBox = new LeftHandBox(_player);
         _rightHandBox = new RightHandBox(_player);
         _errSpace = new AboveActionErrorSpace();
-        
-        
-        _player.WBox = _wealthBox;
-        _player.EqBox = _eqBox;
-        _player.LhBox = _leftHandBox;
-        _player.RhBox = _rightHandBox;
-        _player.ErrSpace = _errSpace;
+        _fightErrSpace = new AboveFightErrorSpace();
 
+        var gameView = GameView.GetInstance();
+        gameView.ActionBox = _actionBox;
+        gameView.VitalsBox = _vitalsBox;
+        gameView.WealthBox = _wealthBox;
+        gameView.EquipmentBox = _eqBox;
+        gameView.LeftHandBox = _leftHandBox;
+        gameView.RightHandBox = _rightHandBox;
+        gameView.AboveActionErrorSpace = _errSpace;
+        gameView.AboveFightErrorSpace = _fightErrSpace;
+        gameView.PlayerMovesBox = _pmBox;
+        gameView.FightBox = _fightBox;
+        
+        
     }
-
     public void Start()
     {
         var config = Configurator.Instance.Configure();
         Console.Clear();
-        var logger = Logger.GetInstance;
 
         var themeSettings = Configurator.Instance.ConfigureTheme();
         
         
-
         Console.CursorVisible = false;
-        _board.AddPlayer(_player, config.PlayerName);
-        _board.Generate(themeSettings);
-        
-        _board.Display();
-        // _board.GenerateItems();
+        _worldBootstrapper.Populate(_board, _player, new PlayerMovesBuilder(_pmBox), themeSettings, config.PlayerName);
+        BoardView.Display(_board.CreateSnapshotResult());
         _actionBox.DisplayFrame();
         _fightBox.DisplayFrame();
         
@@ -80,49 +84,12 @@ public class Game
         
         _rightHandBox.DisplayFrame();
         _rightHandBox.DisplayHand();
+        _controller = new GameController(_board, _player, _errSpace);
+        _controller.Run();
         
-        WaitForMove();
-    }
-    public void WaitForMove()
-    {
-        var sh = new SeekHandler(_board);
-        var eh = new EscapeHandler(_player,this);
-        var mh = new MoveHandler(_board);
-        var puh = new PickUpHandler(_player);
-        var bmh = new BackpackModeHandler(_player);
-        var fh = new FightHandler(_board, _errSpace);
-        var lm = new LoggerMode(_board);
-        var dmh = new DisallowedMoveHandler(_errSpace);
-        
-        fh.SetNext(sh);
-        sh.SetNext(eh);
-        eh.SetNext(mh);
-        mh.SetNext(puh);
-        puh.SetNext(lm);
-        lm.SetNext(bmh);
-        bmh.SetNext(dmh);
-        
-        while (true)
-        {
-            ConsoleKey key = Console.ReadKey(intercept: true).Key;
-            var res = fh.Handle(key);
-            if (res == HandleResult.ExitGame)
-                return;
-        }
     }
     
-    public void EndGood()
-    {
-        Console.WriteLine("Game Ended!");
-        Environment.Exit(0);
-    }
+    
 
-    public void EndBad() // TODO Lepiej to zrob
-    {
-        var endScreen = new EndScreen();
-        endScreen.EndGame();
-        Thread.Sleep(3000);
-        Console.Clear();
-        Environment.Exit(0);
-    }
+    
 }
